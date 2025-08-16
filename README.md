@@ -8,7 +8,7 @@ Structures to be implemented:
 - Linked Lists
     - Single
     - Double
-    - circular
+    - Circular
 - Stack
 - Queue 
     - Priority queue
