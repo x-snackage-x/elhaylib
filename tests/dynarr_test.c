@@ -31,14 +31,14 @@ int main() {
     }
 
     printf("Testing expansion:\n");
-    printf("Before Size: %ld\n", my_arr.dynarr_size);
-    printf("Before Cap.: %ld\n", my_arr.dynarr_capacity);
+    printf("Before Size: %zu\n", my_arr.dynarr_size);
+    printf("Before Cap.: %zu\n", my_arr.dynarr_capacity);
 
     float new_number = 4926.3f;
     dynarr_push(&my_arr, &new_number);
 
-    printf("After Size: %ld\n", my_arr.dynarr_size);
-    printf("After Cap.: %ld\n", my_arr.dynarr_capacity);
+    printf("After Size: %zu\n", my_arr.dynarr_size);
+    printf("After Cap.: %zu\n", my_arr.dynarr_capacity);
     for(long unsigned int i = 0; i < my_arr.dynarr_size; ++i) {
         printf("%ld-th Element = %f\n", i, *(ptr_head_float + i));
     }
@@ -46,8 +46,8 @@ int main() {
     new_number = 54535.f;
     dynarr_push(&my_arr, &new_number);
 
-    printf("After Size: %ld\n", my_arr.dynarr_size);
-    printf("After Cap.: %ld\n", my_arr.dynarr_capacity);
+    printf("After Size: %zu\n", my_arr.dynarr_size);
+    printf("After Cap.: %zu\n", my_arr.dynarr_capacity);
     for(long unsigned int i = 0; i < my_arr.dynarr_size; ++i) {
         printf("%ld-th Element = %f\n", i, *(ptr_head_float + i));
     }
@@ -63,9 +63,9 @@ int main() {
 
     printf("Array Head Struct:\n");
     printf(" {\n");
-    printf("   %ld\n", my_arr.elem_size);
-    printf("   %ld\n", my_arr.dynarr_size);
-    printf("   %ld\n", my_arr.dynarr_capacity);
+    printf("   %zu\n", my_arr.elem_size);
+    printf("   %zu\n", my_arr.dynarr_size);
+    printf("   %zu\n", my_arr.dynarr_capacity);
     printf("   %f\n", my_arr.growth_fac);
     printf("   %p\n", my_arr.ptr_first_elem);
     printf(" }\n\n");
@@ -93,8 +93,8 @@ int main() {
     }
 
     printf("Testing expansion:\n");
-    printf("Before Size: %ld\n", my_arr.dynarr_size);
-    printf("Before Cap.: %ld\n", my_arr.dynarr_capacity);
+    printf("Before Size: %zu\n", my_arr.dynarr_size);
+    printf("Before Cap.: %zu\n", my_arr.dynarr_capacity);
     for(long unsigned int i = 0; i < my_arr.dynarr_size; ++i) {
         ptr_data = (ptr_head + i);
         printf("%ld-th Struct:\n", i);
@@ -107,8 +107,8 @@ int main() {
     }
 
     dynarr_push(&my_arr, &third_struct);
-    printf("After Size: %ld\n", my_arr.dynarr_size);
-    printf("After Cap.: %ld\n", my_arr.dynarr_capacity);
+    printf("After Size: %zu\n", my_arr.dynarr_size);
+    printf("After Cap.: %zu\n", my_arr.dynarr_capacity);
     for(long unsigned int i = 0; i < my_arr.dynarr_size; ++i) {
         ptr_data = (ptr_head + i);
         printf("%ld-th Struct:\n", i);
@@ -121,8 +121,8 @@ int main() {
     }
 
     dynarr_push(&my_arr, &forth_struct);
-    printf("End Size: %ld\n", my_arr.dynarr_size);
-    printf("End Cap.: %ld\n\n", my_arr.dynarr_capacity);
+    printf("End Size: %zu\n", my_arr.dynarr_size);
+    printf("End Cap.: %zu\n\n", my_arr.dynarr_capacity);
 
     for(long unsigned int i = 0; i < my_arr.dynarr_size; ++i) {
         ptr_data = (ptr_head + i);

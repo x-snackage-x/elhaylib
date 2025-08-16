@@ -17,3 +17,5 @@ void dynarr_push(dynarr_head* ptr_head, const void* element);
 void dynarr_free(dynarr_head* ptr_head);
 // internals
 void dynarr_expand(dynarr_head* ptr_head);
+
+// LINKED LIST

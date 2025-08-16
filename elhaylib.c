@@ -50,3 +50,5 @@ void dynarr_expand(dynarr_head* ptr_head) {
     }
     ptr_head->ptr_first_elem = new_ptr;
 }
+
+// LINKED LIST
