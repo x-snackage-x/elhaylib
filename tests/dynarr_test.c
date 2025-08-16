@@ -26,8 +26,8 @@ int main() {
     *(ptr_head_float + 2) = 333.33f;
     my_arr.dynarr_size = 3;
 
-    for(int i = 0; i < my_arr.dynarr_size; ++i) {
-        printf("%d-th Element = %f\n", i, *(ptr_head_float + i));
+    for(long unsigned int i = 0; i < my_arr.dynarr_size; ++i) {
+        printf("%ld-th Element = %f\n", i, *(ptr_head_float + i));
     }
 
     printf("Testing expansion:\n");
@@ -39,8 +39,8 @@ int main() {
 
     printf("After Size: %ld\n", my_arr.dynarr_size);
     printf("After Cap.: %ld\n", my_arr.dynarr_capacity);
-    for(int i = 0; i < my_arr.dynarr_size; ++i) {
-        printf("%d-th Element = %f\n", i, *(ptr_head_float + i));
+    for(long unsigned int i = 0; i < my_arr.dynarr_size; ++i) {
+        printf("%ld-th Element = %f\n", i, *(ptr_head_float + i));
     }
 
     new_number = 54535.f;
@@ -48,8 +48,8 @@ int main() {
 
     printf("After Size: %ld\n", my_arr.dynarr_size);
     printf("After Cap.: %ld\n", my_arr.dynarr_capacity);
-    for(int i = 0; i < my_arr.dynarr_size; ++i) {
-        printf("%d-th Element = %f\n", i, *(ptr_head_float + i));
+    for(long unsigned int i = 0; i < my_arr.dynarr_size; ++i) {
+        printf("%ld-th Element = %f\n", i, *(ptr_head_float + i));
     }
 
     dynarr_free(&my_arr);
@@ -81,9 +81,9 @@ int main() {
     dynarr_push(&my_arr, &second_struct);
 
     my_test_struct* ptr_data = 0;
-    for(int i = 0; i < my_arr.dynarr_size; ++i) {
+    for(long unsigned int i = 0; i < my_arr.dynarr_size; ++i) {
         ptr_data = (ptr_head + i);
-        printf("%d-th Struct:\n", i);
+        printf("%ld-th Struct:\n", i);
         printf(" {\n");
         printf("   %d, ", ptr_data->anInt);
         printf("   %f, ", ptr_data->aFloat);
@@ -95,9 +95,9 @@ int main() {
     printf("Testing expansion:\n");
     printf("Before Size: %ld\n", my_arr.dynarr_size);
     printf("Before Cap.: %ld\n", my_arr.dynarr_capacity);
-    for(int i = 0; i < my_arr.dynarr_size; ++i) {
+    for(long unsigned int i = 0; i < my_arr.dynarr_size; ++i) {
         ptr_data = (ptr_head + i);
-        printf("%d-th Struct:\n", i);
+        printf("%ld-th Struct:\n", i);
         printf(" {\n");
         printf("   %d, ", ptr_data->anInt);
         printf("   %f, ", ptr_data->aFloat);
@@ -109,9 +109,9 @@ int main() {
     dynarr_push(&my_arr, &third_struct);
     printf("After Size: %ld\n", my_arr.dynarr_size);
     printf("After Cap.: %ld\n", my_arr.dynarr_capacity);
-    for(int i = 0; i < my_arr.dynarr_size; ++i) {
+    for(long unsigned int i = 0; i < my_arr.dynarr_size; ++i) {
         ptr_data = (ptr_head + i);
-        printf("%d-th Struct:\n", i);
+        printf("%ld-th Struct:\n", i);
         printf(" {\n");
         printf("   %d, ", ptr_data->anInt);
         printf("   %f, ", ptr_data->aFloat);
@@ -124,9 +124,9 @@ int main() {
     printf("End Size: %ld\n", my_arr.dynarr_size);
     printf("End Cap.: %ld\n\n", my_arr.dynarr_capacity);
 
-    for(int i = 0; i < my_arr.dynarr_size; ++i) {
+    for(long unsigned int i = 0; i < my_arr.dynarr_size; ++i) {
         ptr_data = (ptr_head + i);
-        printf("%d-th Struct:\n", i);
+        printf("%ld-th Struct:\n", i);
         printf(" {\n");
         printf("   %d, ", ptr_data->anInt);
         printf("   %f, ", ptr_data->aFloat);

@@ -7,7 +7,7 @@
 
 // DYNAMIC ARRAY
 void dynarr_init(dynarr_head* ptr_head) {
-    assert(("Element size must be greater zero.", ptr_head->elem_size > 0));
+    assert(ptr_head->elem_size > 0 && "Element size must be greater zero.");
     if(ptr_head->dynarr_capacity <= 0) {
         ptr_head->dynarr_capacity = 10;
     }
