@@ -4,7 +4,7 @@ The goal is to implement dynamic structures that can hold a defined `struct` and
 
 Structures to be implemented:
 
-- Dynamic Arrays
+- ~~Dynamic Arrays~~ Done
 - Linked Lists
     - Single
     - Double
