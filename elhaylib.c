@@ -61,7 +61,7 @@ void linlst_init(linked_list_head* const ptr_head) {
 
 void linlist_append_node(linked_list_head* const ptr_head,
                          size_t data_size,
-                         const void const* data) {
+                         void const* data) {
     list_node* new_node_ptr = calloc(1, sizeof(list_node));
     new_node_ptr->data = calloc(1, data_size);
     memcpy(new_node_ptr->data, data, data_size);
@@ -96,4 +96,142 @@ void linlist_append_node(linked_list_head* const ptr_head,
     }
 
     ptr_head->list_len++;
+}
+
+void linlist_prepend_node(linked_list_head* const ptr_head,
+                          size_t data_size,
+                          void const* data) {
+    list_node* new_node_ptr = calloc(1, sizeof(list_node));
+    new_node_ptr->data = calloc(1, data_size);
+    memcpy(new_node_ptr->data, data, data_size);
+
+    list_node* old_first_node_ptr = ptr_head->ptr_first_node;
+
+    ptr_head->ptr_first_node = new_node_ptr;
+    if(ptr_head->list_len == 0) {
+        ptr_head->list_len++;
+        ptr_head->ptr_last_node = new_node_ptr;
+
+        switch(ptr_head->list_type) {
+            case CIRCULAR:
+                new_node_ptr->next_node = new_node_ptr;
+                new_node_ptr->previous_node = new_node_ptr;
+                break;
+            case OPEN:
+                break;
+        }
+
+        return;
+    }
+
+    old_first_node_ptr->previous_node = new_node_ptr;
+    new_node_ptr->next_node = old_first_node_ptr;
+
+    switch(ptr_head->list_type) {
+        case CIRCULAR:
+            new_node_ptr->previous_node = ptr_head->ptr_last_node;
+            break;
+        case OPEN:
+            break;
+    }
+
+    ptr_head->list_len++;
+}
+
+void linlist_insert_node(linked_list_head* const ptr_head,
+                         list_node* const pre_node,
+                         size_t data_size,
+                         void const* data) {
+    if(pre_node->next_node == NULL ||
+       pre_node->next_node == ptr_head->ptr_first_node) {
+        linlist_append_node(ptr_head, data_size, data);
+        return;
+    }
+
+    if(pre_node == NULL) {
+        linlist_prepend_node(ptr_head, data_size, data);
+        return;
+    }
+
+    list_node* new_node_ptr = calloc(1, sizeof(list_node));
+    new_node_ptr->data = calloc(1, data_size);
+    memcpy(new_node_ptr->data, data, data_size);
+
+    new_node_ptr->previous_node = pre_node;
+    new_node_ptr->next_node = pre_node->next_node;
+    pre_node->next_node = new_node_ptr;
+    (new_node_ptr->next_node)->previous_node = new_node_ptr;
+
+    ptr_head->list_len++;
+}
+
+void linlist_get_node(linked_list_head* const ptr_head,
+                      list_node_return* found_node_struct,
+                      uint8_t index) {
+    if(ptr_head->list_len == 0 || ptr_head->list_len - 1 < index) {
+        found_node_struct->found_node_ptr = NULL;
+        found_node_struct->node_found = false;
+        return;
+    }
+
+    found_node_struct->node_found = true;
+    if(index == 0 && ptr_head->list_len != 0) {
+        found_node_struct->found_node_ptr = ptr_head->ptr_first_node;
+        return;
+    }
+    if(index == ptr_head->list_len - 1) {
+        found_node_struct->found_node_ptr = ptr_head->ptr_last_node;
+        return;
+    }
+
+    found_node_struct->found_node_ptr = ptr_head->ptr_first_node;
+    for(uint8_t i = 1; i < index; ++i) {
+        found_node_struct->found_node_ptr =
+            (found_node_struct->found_node_ptr)->next_node;
+    }
+}
+
+void linlist_delete_node(linked_list_head* const ptr_head,
+                         list_node* const node) {
+    list_node* pre_node = node->previous_node;
+    list_node* post_node = node->next_node;
+
+    post_node->previous_node = pre_node;
+    pre_node->next_node = post_node;
+
+    switch(ptr_head->list_type) {
+        case OPEN:
+            if(ptr_head->ptr_first_node == node) {
+                if(pre_node == NULL) {
+                    ptr_head->ptr_first_node = post_node;
+                } else {
+                    ptr_head->ptr_first_node = pre_node;
+                }
+            }
+
+            if(ptr_head->ptr_last_node == node) {
+                if(post_node == NULL) {
+                    ptr_head->ptr_last_node = pre_node;
+                } else {
+                    ptr_head->ptr_last_node = post_node;
+                }
+            }
+            break;
+
+        case CIRCULAR:
+            if(ptr_head->ptr_first_node == node) {
+                ptr_head->ptr_first_node = post_node;
+            }
+
+            if(ptr_head->ptr_last_node == node) {
+                ptr_head->ptr_last_node = pre_node;
+            }
+            break;
+    }
+
+    node->next_node = NULL;
+    node->previous_node = NULL;
+    free(node);
+
+    ptr_head->list_len--;
 }

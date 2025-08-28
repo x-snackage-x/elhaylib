@@ -4,11 +4,14 @@ The goal is to implement dynamic structures that can hold a defined `struct` and
 
 Structures to be implemented:
 
+## Concrete Data Structures
 - ~~Dynamic Arrays~~ Done
 - Linked Lists
-    - Single
+    - ~~Single~~ Cancelled
     - Double
     - Circular
+
+## Abstract Data Structures
 - Stack
 - Queue 
     - Priority queue
