@@ -13,13 +13,16 @@
 #define TEST_NAMES_LENGTH 25
 #define NO_YAPPING false
 
+typedef enum { STRUCT_1 = 1000, STRUCT_2 = 1001 } my_struct_types;
+
 typedef struct {
-    char* name;
+    int idx;
+    char name[10];
 } my_test_structure;
 
 typedef struct {
-    char* name;
     char gender;
+    char name[10];
 } my_other_test_structure;
 
 linked_list_head my_list = {.list_type = OPEN};
@@ -277,13 +280,226 @@ bool test_delete_linked_list(bool no_yapping) {
 }
 
 bool test_circular_linked_list(bool no_yapping) {
-    return true;
+    bool test_result = true;
+    bool sub_tests[] = {true, true, true, true, true};
+    int n_sub = 5;
+    list_node_return found_node_buffer = {0};
+
+    int int_data = 0;
+    int my_res_1[] = {0, 1, 2, 3, 4};
+    int my_res_2[] = {0, 1, 2, 3, 3, 4};
+    int my_res_3[] = {-1, 0, 1, 2, 3, 4};
+    int my_res_4[] = {0, 1, 2, 3, 4, 5};
+
+    if(!no_yapping)
+        printf("1. Testing circular linked list building:\n");
+
+    my_list.list_type = CIRCULAR;
+    linlst_init(&my_list);
+
+    int first_length = 5;
+    for(int i = 0; i < first_length; ++i) {
+        linlist_append_node(&my_list, NODE_INT, sizeof(i), &i);
+    }
+
+    for(int i = 0; i < first_length; ++i) {
+        linlist_get_node(&my_list, &found_node_buffer, i);
+        int_data = *(int*)found_node_buffer.found_node_ptr->data;
+        sub_tests[0] &= int_data == my_res_1[i];
+        if(!no_yapping)
+            printf("%d-th Element = %d\n", i, int_data);
+    }
+
+    if(!no_yapping) {
+        printf("%*s", TEST_NAMES_LENGTH, "Result: ");
+        print_test_res(sub_tests[0]);
+        printf("2. Testing circular linked list insert:\n");
+    }
+    int my_int = 3;
+    linlist_get_node(&my_list, &found_node_buffer, 3);
+    linlist_insert_node(&my_list, found_node_buffer.found_node_ptr, NODE_INT,
+                        sizeof(my_int), &my_int);
+
+    for(int i = 0; i < (int)my_list.list_len; ++i) {
+        linlist_get_node(&my_list, &found_node_buffer, i);
+        int_data = *(int*)found_node_buffer.found_node_ptr->data;
+        sub_tests[1] &= int_data == my_res_2[i];
+        if(!no_yapping)
+            printf("%d-th Element = %d\n", i, int_data);
+    }
+
+    if(!no_yapping) {
+        printf("%*s", TEST_NAMES_LENGTH, "Result: ");
+        print_test_res(sub_tests[1]);
+        printf("3a. Testing circular linked list traversal:\n");
+    }
+    int curr_list_len = (int)my_list.list_len;
+    list_node* curr_list_node = my_list.ptr_first_node;
+    for(int i = 0; i < curr_list_len * 2; ++i) {
+        int_data = *(int*)curr_list_node->data;
+        sub_tests[2] &= int_data == my_res_2[i % curr_list_len];
+        curr_list_node = curr_list_node->next_node;
+        if(!no_yapping)
+            printf("%d-th Element = %d\n", i % curr_list_len, int_data);
+    }
+    if(!no_yapping)
+        printf("3b. Testing circular linked list reversed traversal:\n");
+    curr_list_node = my_list.ptr_last_node;
+    for(int i = curr_list_len * 2 - 1; i >= 0; --i) {
+        int_data = *(int*)curr_list_node->data;
+        sub_tests[2] &= int_data == my_res_2[i % curr_list_len];
+        curr_list_node = curr_list_node->previous_node;
+        if(!no_yapping)
+            printf("%d-th Element = %d\n", i % curr_list_len, int_data);
+    }
+
+    if(!no_yapping) {
+        printf("%*s", TEST_NAMES_LENGTH, "Result: ");
+        print_test_res(sub_tests[2]);
+        printf("4. Testing circular linked list delete:\n");
+    }
+    linlist_get_node(&my_list, &found_node_buffer, my_list.list_len - 2);
+    linlist_delete_node(&my_list, found_node_buffer.found_node_ptr);
+    for(int i = 0; i < (int)my_list.list_len; ++i) {
+        linlist_get_node(&my_list, &found_node_buffer, i);
+        int_data = *(int*)found_node_buffer.found_node_ptr->data;
+        sub_tests[3] &= int_data == my_res_1[i];
+        if(!no_yapping)
+            printf("%d-th Element = %d\n", i, int_data);
+    }
+
+    if(!no_yapping) {
+        printf("%*s", TEST_NAMES_LENGTH, "Result: ");
+        print_test_res(sub_tests[3]);
+        printf("5. Testing circular linked list edges:\n");
+    }
+
+    if(!no_yapping) {
+        printf("Prepend Case:\n");
+        printf("Forward traversal:\n");
+    }
+    my_int = -1;
+    linlist_prepend_node(&my_list, NODE_INT, sizeof(my_int), &my_int);
+    curr_list_len = (int)my_list.list_len;
+    curr_list_node = my_list.ptr_first_node;
+    for(int i = 0; i < curr_list_len + 1; ++i) {
+        int_data = *(int*)curr_list_node->data;
+        sub_tests[4] &= int_data == my_res_3[i % curr_list_len];
+        curr_list_node = curr_list_node->next_node;
+        if(!no_yapping)
+            printf("%d-th Element = %d\n", i % curr_list_len, int_data);
+    }
+    if(!no_yapping)
+        printf("Reversed traversal:\n");
+    curr_list_node = my_list.ptr_last_node;
+    for(int i = curr_list_len - 1; i >= -1; --i) {
+        int_data = *(int*)curr_list_node->data;
+        int idx = (i != -1) ? i : curr_list_len - 1;
+        sub_tests[4] &= int_data == my_res_3[idx % curr_list_len];
+        curr_list_node = curr_list_node->previous_node;
+        if(!no_yapping)
+            printf("%d-th Element = %d\n", idx % curr_list_len, int_data);
+    }
+
+    if(!no_yapping) {
+        printf("Prepend Case - Delete:\n");
+        printf("Forward traversal:\n");
+    }
+    linlist_delete_node(&my_list, my_list.ptr_first_node);
+    curr_list_len = (int)my_list.list_len;
+    curr_list_node = my_list.ptr_first_node;
+    for(int i = 0; i < curr_list_len + 1; ++i) {
+        int_data = *(int*)curr_list_node->data;
+        sub_tests[4] &= int_data == my_res_1[i % curr_list_len];
+        curr_list_node = curr_list_node->next_node;
+        if(!no_yapping)
+            printf("%d-th Element = %d\n", i % curr_list_len, int_data);
+    }
+    if(!no_yapping)
+        printf("Reversed traversal:\n");
+    curr_list_node = my_list.ptr_last_node;
+    for(int i = curr_list_len - 1; i >= -1; --i) {
+        int_data = *(int*)curr_list_node->data;
+        int idx = (i != -1) ? i : curr_list_len - 1;
+        sub_tests[4] &= int_data == my_res_1[idx % curr_list_len];
+        curr_list_node = curr_list_node->previous_node;
+        if(!no_yapping)
+            printf("%d-th Element = %d\n", idx % curr_list_len, int_data);
+    }
+
+    if(!no_yapping) {
+        printf("Append Case:\n");
+        printf("Forward traversal:\n");
+    }
+    my_int = 5;
+    linlist_append_node(&my_list, NODE_INT, sizeof(my_int), &my_int);
+    curr_list_len = (int)my_list.list_len;
+    curr_list_node = my_list.ptr_first_node;
+    for(int i = 0; i < curr_list_len + 1; ++i) {
+        int_data = *(int*)curr_list_node->data;
+        sub_tests[4] &= int_data == my_res_4[i % curr_list_len];
+        curr_list_node = curr_list_node->next_node;
+        if(!no_yapping)
+            printf("%d-th Element = %d\n", i % curr_list_len, int_data);
+    }
+    if(!no_yapping)
+        printf("Reversed traversal:\n");
+    curr_list_node = my_list.ptr_last_node;
+    for(int i = curr_list_len - 1; i >= -1; --i) {
+        int_data = *(int*)curr_list_node->data;
+        int idx = (i != -1) ? i : curr_list_len - 1;
+        sub_tests[4] &= int_data == my_res_4[idx % curr_list_len];
+        curr_list_node = curr_list_node->previous_node;
+        if(!no_yapping)
+            printf("%d-th Element = %d\n", idx % curr_list_len, int_data);
+    }
+
+    if(!no_yapping) {
+        printf("Append Case - Delete:\n");
+        printf("Forward traversal:\n");
+    }
+    linlist_delete_node(&my_list, my_list.ptr_last_node);
+    curr_list_len = (int)my_list.list_len;
+    curr_list_node = my_list.ptr_first_node;
+    for(int i = 0; i < curr_list_len + 1; ++i) {
+        int_data = *(int*)curr_list_node->data;
+        sub_tests[4] &= int_data == my_res_4[i % curr_list_len];
+        curr_list_node = curr_list_node->next_node;
+        if(!no_yapping)
+            printf("%d-th Element = %d\n", i % curr_list_len, int_data);
+    }
+    if(!no_yapping)
+        printf("Reversed traversal:\n");
+    curr_list_node = my_list.ptr_last_node;
+    for(int i = curr_list_len - 1; i >= -1; --i) {
+        int_data = *(int*)curr_list_node->data;
+        int idx = (i != -1) ? i : curr_list_len - 1;
+        sub_tests[4] &= int_data == my_res_4[idx % curr_list_len];
+        curr_list_node = curr_list_node->previous_node;
+        if(!no_yapping)
+            printf("%d-th Element = %d\n", idx % curr_list_len, int_data);
+    }
+
+    if(!no_yapping) {
+        printf("%*s", TEST_NAMES_LENGTH, "Result: ");
+        print_test_res(sub_tests[4]);
+    }
+
+    for(int i = 0; i < n_sub; ++i) {
+        test_result &= sub_tests[i];
+    }
+    return test_result;
+}
+
+bool test_struct_linked_list(bool no_yapping) {
+    return false;
 }
 
 int main() {
     bool test_result1 = test_build_linked_list(NO_YAPPING);
     bool test_result2 = test_delete_linked_list(NO_YAPPING);
     bool test_result3 = test_circular_linked_list(NO_YAPPING);
+    bool test_result4 = test_struct_linked_list(NO_YAPPING);
 
     printf("Linked List Test Suite Summary:\n");
     printf("%*s", TEST_NAMES_LENGTH, "List Building Test: ");
@@ -292,4 +508,6 @@ int main() {
     print_test_res(test_result2);
     printf("%*s", TEST_NAMES_LENGTH, "Circular List Test: ");
     print_test_res(test_result3);
+    printf("%*s", TEST_NAMES_LENGTH, "Struct List Test: ");
+    print_test_res(test_result4);
 }
