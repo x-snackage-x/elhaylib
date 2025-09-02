@@ -20,6 +20,37 @@ void dynarr_free(dynarr_head* const ptr_head);
 void dynarr_expand(dynarr_head* const ptr_head);
 
 // LINKED LIST
+typedef enum {
+    // Standard primitive types
+    NODE_BOOL = 1,
+    NODE_CHAR,
+    NODE_UCHAR,
+    NODE_SHORT,
+    NODE_USHORT,
+    NODE_INT,
+    NODE_UINT,
+    NODE_LONG,
+    NODE_ULONG,
+    NODE_LONGLONG,
+    NODE_ULONGLONG,
+    NODE_FLOAT,
+    NODE_DOUBLE,
+    NODE_LONGDOUBLE,
+
+    // Fixed-width integer types
+    NODE_INT8,
+    NODE_UINT8,
+    NODE_INT16,
+    NODE_UINT16,
+    NODE_INT32,
+    NODE_UINT32,
+    NODE_INT64,
+    NODE_UINT64,
+
+    // Reserved range for user-defined types
+    NODE_USER_START = 1000
+} node_type;
+
 typedef enum { OPEN = 1, CIRCULAR } list_type;
 typedef struct list_node list_node;
 typedef struct {
@@ -31,6 +62,8 @@ typedef struct {
 
 struct list_node {
     char* data;
+    node_type dtype;
+    size_t data_size;
     list_node* next_node;
     list_node* previous_node;
 };
@@ -42,13 +75,16 @@ typedef struct {
 
 void linlst_init(linked_list_head* const ptr_head);
 void linlist_append_node(linked_list_head* const ptr_head,
+                         node_type dtype,
                          size_t data_size,
                          void const* data);
 void linlist_prepend_node(linked_list_head* const ptr_head,
+                          node_type dtype,
                           size_t data_size,
                           void const* data);
 void linlist_insert_node(linked_list_head* const ptr_head,
                          list_node* const pre_node,
+                         node_type dtype,
                          size_t data_size,
                          void const* data);
 void linlist_get_node(linked_list_head* const ptr_head,
@@ -57,4 +93,7 @@ void linlist_get_node(linked_list_head* const ptr_head,
 void linlist_delete_node(linked_list_head* const ptr_head,
                          list_node* const node);
 void linlist_delete_list(linked_list_head* const ptr_head);
-bool linlist_is_empty(linked_list_head* const ptr_head);
+// internals
+list_node* linlist_prepare_data_node(node_type dtype,
+                                     size_t data_size,
+                                     void const* data);
