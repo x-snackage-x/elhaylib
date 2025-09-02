@@ -59,11 +59,11 @@ void linlst_init(linked_list_head* const ptr_head) {
     ptr_head->ptr_last_node = NULL;
 }
 
-void linlist_append_node(linked_list_head* const ptr_head,
-                         node_type dtype,
-                         size_t data_size,
-                         void const* data) {
-    list_node* new_node_ptr = linlist_prepare_data_node(dtype, data_size, data);
+void linlst_append_node(linked_list_head* const ptr_head,
+                        node_type dtype,
+                        size_t data_size,
+                        void const* data) {
+    list_node* new_node_ptr = linlst_prepare_data_node(dtype, data_size, data);
 
     list_node* old_last_node_ptr = ptr_head->ptr_last_node;
     ptr_head->ptr_last_node = new_node_ptr;
@@ -98,11 +98,11 @@ void linlist_append_node(linked_list_head* const ptr_head,
     ptr_head->list_len++;
 }
 
-void linlist_prepend_node(linked_list_head* const ptr_head,
-                          node_type dtype,
-                          size_t data_size,
-                          void const* data) {
-    list_node* new_node_ptr = linlist_prepare_data_node(dtype, data_size, data);
+void linlst_prepend_node(linked_list_head* const ptr_head,
+                         node_type dtype,
+                         size_t data_size,
+                         void const* data) {
+    list_node* new_node_ptr = linlst_prepare_data_node(dtype, data_size, data);
 
     list_node* old_first_node_ptr = ptr_head->ptr_first_node;
 
@@ -138,23 +138,23 @@ void linlist_prepend_node(linked_list_head* const ptr_head,
     ptr_head->list_len++;
 }
 
-void linlist_insert_node(linked_list_head* const ptr_head,
-                         list_node* const pre_node,
-                         node_type dtype,
-                         size_t data_size,
-                         void const* data) {
+void linlst_insert_node(linked_list_head* const ptr_head,
+                        list_node* const pre_node,
+                        node_type dtype,
+                        size_t data_size,
+                        void const* data) {
     if(pre_node->next_node == NULL ||
        pre_node->next_node == ptr_head->ptr_first_node) {
-        linlist_append_node(ptr_head, dtype, data_size, data);
+        linlst_append_node(ptr_head, dtype, data_size, data);
         return;
     }
 
     if(pre_node == NULL) {
-        linlist_prepend_node(ptr_head, dtype, data_size, data);
+        linlst_prepend_node(ptr_head, dtype, data_size, data);
         return;
     }
 
-    list_node* new_node_ptr = linlist_prepare_data_node(dtype, data_size, data);
+    list_node* new_node_ptr = linlst_prepare_data_node(dtype, data_size, data);
 
     new_node_ptr->previous_node = pre_node;
     new_node_ptr->next_node = pre_node->next_node;
@@ -164,9 +164,9 @@ void linlist_insert_node(linked_list_head* const ptr_head,
     ptr_head->list_len++;
 }
 
-void linlist_get_node(linked_list_head* const ptr_head,
-                      list_node_return* found_node_struct,
-                      uint8_t index) {
+void linlst_get_node(linked_list_head* const ptr_head,
+                     list_node_return* found_node_struct,
+                     uint8_t index) {
     if(ptr_head->list_len == 0 || ptr_head->list_len - 1 < index) {
         found_node_struct->found_node_ptr = NULL;
         found_node_struct->node_found = false;
@@ -190,8 +190,8 @@ void linlist_get_node(linked_list_head* const ptr_head,
     }
 }
 
-void linlist_delete_node(linked_list_head* const ptr_head,
-                         list_node* const node) {
+void linlst_delete_node(linked_list_head* const ptr_head,
+                        list_node* const node) {
     free(node->data);
     list_node* pre_node = node->previous_node;
     list_node* post_node = node->next_node;
@@ -240,10 +240,10 @@ void linlist_delete_node(linked_list_head* const ptr_head,
     ptr_head->list_len--;
 }
 
-void linlist_delete_list(linked_list_head* const ptr_head) {
+void linlst_delete_list(linked_list_head* const ptr_head) {
     list_node* cur_last_node = ptr_head->ptr_last_node;
     while(ptr_head->list_len > 0) {
-        linlist_delete_node(ptr_head, cur_last_node);
+        linlst_delete_node(ptr_head, cur_last_node);
         cur_last_node = ptr_head->ptr_last_node;
     }
 
@@ -251,9 +251,9 @@ void linlist_delete_list(linked_list_head* const ptr_head) {
 }
 
 // internals
-list_node* linlist_prepare_data_node(node_type dtype,
-                                     size_t data_size,
-                                     void const* data) {
+list_node* linlst_prepare_data_node(node_type dtype,
+                                    size_t data_size,
+                                    void const* data) {
     list_node* new_node_ptr = calloc(1, sizeof(list_node));
     new_node_ptr->data = calloc(1, data_size);
     new_node_ptr->data_size = data_size;

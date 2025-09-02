@@ -74,26 +74,26 @@ typedef struct {
 } list_node_return;
 
 void linlst_init(linked_list_head* const ptr_head);
-void linlist_append_node(linked_list_head* const ptr_head,
+void linlst_append_node(linked_list_head* const ptr_head,
+                        node_type dtype,
+                        size_t data_size,
+                        void const* data);
+void linlst_prepend_node(linked_list_head* const ptr_head,
                          node_type dtype,
                          size_t data_size,
                          void const* data);
-void linlist_prepend_node(linked_list_head* const ptr_head,
-                          node_type dtype,
-                          size_t data_size,
-                          void const* data);
-void linlist_insert_node(linked_list_head* const ptr_head,
-                         list_node* const pre_node,
-                         node_type dtype,
-                         size_t data_size,
-                         void const* data);
-void linlist_get_node(linked_list_head* const ptr_head,
-                      list_node_return* found_node_struct,
-                      uint8_t index);
-void linlist_delete_node(linked_list_head* const ptr_head,
-                         list_node* const node);
-void linlist_delete_list(linked_list_head* const ptr_head);
+void linlst_insert_node(linked_list_head* const ptr_head,
+                        list_node* const pre_node,
+                        node_type dtype,
+                        size_t data_size,
+                        void const* data);
+void linlst_get_node(linked_list_head* const ptr_head,
+                     list_node_return* found_node_struct,
+                     uint8_t index);
+void linlst_delete_node(linked_list_head* const ptr_head,
+                        list_node* const node);
+void linlst_delete_list(linked_list_head* const ptr_head);
 // internals
-list_node* linlist_prepare_data_node(node_type dtype,
-                                     size_t data_size,
-                                     void const* data);
+list_node* linlst_prepare_data_node(node_type dtype,
+                                    size_t data_size,
+                                    void const* data);
