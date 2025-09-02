@@ -89,6 +89,7 @@ void linlist_append_node(linked_list_head* const ptr_head,
         case CIRCULAR:
             new_node_ptr->next_node = ptr_head->ptr_first_node;
             ptr_head->ptr_last_node = new_node_ptr;
+            ptr_head->ptr_first_node->previous_node = new_node_ptr;
             break;
         case OPEN:
             break;
@@ -128,6 +129,7 @@ void linlist_prepend_node(linked_list_head* const ptr_head,
     switch(ptr_head->list_type) {
         case CIRCULAR:
             new_node_ptr->previous_node = ptr_head->ptr_last_node;
+            ptr_head->ptr_last_node->next_node = new_node_ptr;
             break;
         case OPEN:
             break;
