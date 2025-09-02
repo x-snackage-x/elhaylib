@@ -194,8 +194,14 @@ void linlist_delete_node(linked_list_head* const ptr_head,
     list_node* pre_node = node->previous_node;
     list_node* post_node = node->next_node;
 
-    post_node->previous_node = pre_node;
-    pre_node->next_node = post_node;
+    if(pre_node != NULL && post_node != NULL) {
+        post_node->previous_node = pre_node;
+        pre_node->next_node = post_node;
+    } else if(pre_node != NULL && post_node == NULL) {
+        pre_node->next_node = NULL;
+    } else if(pre_node == NULL && post_node != NULL) {
+        post_node->previous_node = NULL;
+    }
 
     switch(ptr_head->list_type) {
         case OPEN:
@@ -227,8 +233,6 @@ void linlist_delete_node(linked_list_head* const ptr_head,
             break;
     }
 
-    node->next_node = NULL;
-    node->previous_node = NULL;
     free(node);
 
     ptr_head->list_len--;
