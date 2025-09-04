@@ -6,21 +6,25 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #define RED "\x1B[31m"
 #define GRN "\x1B[32m"
 #define RESET "\x1B[0m"
 
 #define TEST_NAMES_LENGTH 25
-#define NO_YAPPING false
+#define NO_YAPPING true
 
 typedef enum { STRUCT_1 = 1000, STRUCT_2 = 1001 } my_struct_types;
 
-typedef struct {
+typedef struct my_test_structure {
     int idx;
     char name[10];
 } my_test_structure;
 
-typedef struct {
+typedef struct my_other_test_structure {
     char gender;
     char name[10];
 } my_other_test_structure;
@@ -38,6 +42,8 @@ void print_test_res(bool result) {
 
 bool test_build_linked_list(bool no_yapping) {
     bool test_result = true;
+    int n_sub = 4;
+    bool sub_tests[] = {true, true, true, true};
     if(!no_yapping)
         printf("1. Testing linked list building:\n");
 
@@ -49,35 +55,33 @@ bool test_build_linked_list(bool no_yapping) {
         linlst_append_node(&my_list, NODE_INT, sizeof(i), &i);
     }
 
-    bool test_res_first_build = true;
     for(int i = 0; i < first_length; ++i) {
         linlst_get_node(&my_list, &found_node_buffer, (uint8_t)i);
         int data = *(int*)found_node_buffer.found_node_ptr->data;
-        test_res_first_build &= data == i;
+        sub_tests[0] &= data == i;
         if(!no_yapping)
             printf("%d-th Element = %d\n", i, data);
     }
 
     if(!no_yapping) {
         printf("%*s", TEST_NAMES_LENGTH, "Result: ");
-        print_test_res(test_res_first_build);
+        print_test_res(sub_tests[0]);
         printf("2. Testing linked list prepend:\n");
     }
     int my_int = -1;
     linlst_prepend_node(&my_list, NODE_INT, sizeof(my_int), &my_int);
 
-    bool test_res_prepend = true;
     for(int i = 0; i < (int)my_list.list_len; ++i) {
         linlst_get_node(&my_list, &found_node_buffer, (uint8_t)i);
         int data = *(int*)found_node_buffer.found_node_ptr->data;
-        test_res_prepend &= data == i - 1;
+        sub_tests[1] &= data == i - 1;
         if(!no_yapping)
             printf("%d-th Element = %d\n", i, data);
     }
 
     if(!no_yapping) {
         printf("%*s", TEST_NAMES_LENGTH, "Result: ");
-        print_test_res(test_res_prepend);
+        print_test_res(sub_tests[1]);
         printf("3. Testing linked list insert:\n");
     }
     float my_dec = 3.5;
@@ -117,21 +121,20 @@ bool test_build_linked_list(bool no_yapping) {
     my_int = 5;
     linlst_append_node(&my_list, NODE_INT, sizeof(my_int), &my_int);
 
-    bool test_res_append = true;
     for(int i = 0; i < (int)my_list.list_len; ++i) {
         linlst_get_node(&my_list, &found_node_buffer, (uint8_t)i);
         switch(found_node_buffer.found_node_ptr->dtype) {
             case NODE_INT:
             default:
                 int_data = *(int*)found_node_buffer.found_node_ptr->data;
-                test_res_append &= (float)int_data == my_res[i];
+                sub_tests[3] &= (float)int_data == my_res[i];
                 if(!no_yapping)
                     printf("%d-th Element = %d\n", i, int_data);
 
                 break;
             case NODE_FLOAT:
                 float_data = *(float*)found_node_buffer.found_node_ptr->data;
-                test_res_append &= float_data == my_res[i];
+                sub_tests[3] &= float_data == my_res[i];
                 if(!no_yapping)
                     printf("%d-th Element = %f\n", i, float_data);
                 break;
@@ -139,18 +142,19 @@ bool test_build_linked_list(bool no_yapping) {
     }
     if(!no_yapping) {
         printf("%*s", TEST_NAMES_LENGTH, "Result: ");
-        print_test_res(test_res_append);
+        print_test_res(sub_tests[3]);
     }
 
-    test_result &= test_res_first_build && test_res_prepend &&
-                   test_res_insert && test_res_append;
+    for(int i = 0; i < n_sub; ++i) {
+        test_result &= sub_tests[i];
+    }
     return test_result;
 }
 
 bool test_delete_linked_list(bool no_yapping) {
     bool test_result = true;
-    bool sub_tests[] = {true, true, true, true, true};
     int n_sub = 5;
+    bool sub_tests[] = {true, true, true, true, true};
     list_node_return found_node_buffer = {0};
 
     int int_data = 0;
@@ -495,10 +499,110 @@ bool test_circular_linked_list(bool no_yapping) {
 }
 
 bool test_struct_linked_list(bool no_yapping) {
-    return no_yapping;
+    bool test_result = true;
+    bool sub_tests[] = {true, true, true, true, true};
+    const int n_sub = 5;
+
+    my_test_structure a_struct = {.idx = 1, .name = "Karl"};
+    my_test_structure b_struct = {.idx = 2, .name = "Vladimir"};
+    my_other_test_structure c_struct = {.gender = 'F', .name = "Jenny"};
+    my_other_test_structure d_struct = {.gender = 'F', .name = "Nadjia"};
+
+    my_test_structure* array_ptr_structs_a[] = {&a_struct, &b_struct};
+    my_other_test_structure* array_ptr_structs_b[] = {&c_struct, &d_struct};
+    const int n_structs = 4;
+
+    if(!no_yapping)
+        printf("1. Testing structs linked list building:\n");
+
+    my_list.list_type = OPEN;
+    linlst_init(&my_list);
+    list_node_return found_node_buffer = {0};
+    int count_struct_a = 0;
+    int count_struct_b = 0;
+    for(int i = 0; i < n_structs; ++i) {
+        if(i % 2 == 0) {
+            linlst_append_node(&my_list, (node_type)STRUCT_1,
+                               sizeof(my_test_structure),
+                               array_ptr_structs_a[count_struct_a++]);
+        } else {
+            linlst_append_node(&my_list, (node_type)STRUCT_2,
+                               sizeof(my_test_structure),
+                               array_ptr_structs_b[count_struct_b++]);
+        }
+    }
+
+    count_struct_a = 0;
+    count_struct_b = 0;
+    my_test_structure buffer_a = {0};
+    my_other_test_structure buffer_b = {0};
+    int j = 0;
+    linlst_get_node(&my_list, &found_node_buffer, (uint8_t)j);
+    while(found_node_buffer.node_found) {
+        if(!no_yapping)
+            printf("┌────────────────────────────┐\n");
+
+        list_node* found_node_ptr = found_node_buffer.found_node_ptr;
+        my_struct_types found_struct_type =
+            (my_struct_types)found_node_ptr->dtype;
+        switch(found_struct_type) {
+            case STRUCT_1:
+            default:
+                buffer_a = *(my_test_structure*)found_node_ptr->data;
+                sub_tests[0] &=
+                    buffer_a.idx == array_ptr_structs_a[count_struct_a]->idx;
+
+                sub_tests[0] &=
+                    0 == strcmp(buffer_a.name,
+                                array_ptr_structs_a[count_struct_a]->name);
+                ++count_struct_a;
+                if(!no_yapping)
+                    printf("│ Index: %d  - Name: %-8s │\n", buffer_a.idx,
+                           buffer_a.name);
+                break;
+
+            case STRUCT_2:
+                buffer_b = *(my_other_test_structure*)found_node_ptr->data;
+                sub_tests[0] &= buffer_b.gender ==
+                                array_ptr_structs_b[count_struct_b]->gender;
+
+                sub_tests[0] &=
+                    0 == strcmp(buffer_b.name,
+                                array_ptr_structs_b[count_struct_b]->name);
+                ++count_struct_b;
+                if(!no_yapping)
+                    printf("│ Gender: %c - Name: %-8s │\n", buffer_b.gender,
+                           buffer_b.name);
+                break;
+        }
+
+        if(!no_yapping)
+            printf("└────────────────────────────┘\n");
+
+        ++j;
+        linlst_get_node(&my_list, &found_node_buffer, (uint8_t)j);
+        if(!no_yapping && found_node_buffer.node_found) {
+            printf("              ↑  │\n");
+            printf("              │  ↓\n");
+        }
+    }
+
+    if(!no_yapping) {
+        printf("%*s", TEST_NAMES_LENGTH, "Result: ");
+        print_test_res(sub_tests[0]);
+    }
+
+    for(int i = 0; i < n_sub; ++i) {
+        test_result &= sub_tests[i];
+    }
+    return test_result;
 }
 
 int main() {
+#ifdef _WIN32
+    SetConsoleOutputCP(CP_UTF8);
+#endif
+
     bool test_result1 = test_build_linked_list(NO_YAPPING);
     bool test_result2 = test_delete_linked_list(NO_YAPPING);
     bool test_result3 = test_circular_linked_list(NO_YAPPING);
