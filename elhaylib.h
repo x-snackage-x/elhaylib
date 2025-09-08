@@ -14,7 +14,7 @@ typedef struct {
 } dynarr_head;
 
 void dynarr_init(dynarr_head* const ptr_head);
-void dynarr_push(dynarr_head* const ptr_head, void const* element);
+char* dynarr_push(dynarr_head* const ptr_head, void const* element);
 void dynarr_free(dynarr_head* const ptr_head);
 // internals
 void dynarr_expand(dynarr_head* const ptr_head);

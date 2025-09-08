@@ -21,15 +21,22 @@ void dynarr_init(dynarr_head* const ptr_head) {
         calloc(ptr_head->dynarr_capacity, ptr_head->elem_size);
 }
 
-void dynarr_push(dynarr_head* const ptr_head, const void* element) {
+char* dynarr_push(dynarr_head* const ptr_head, const void* element) {
     if(ptr_head->dynarr_size == ptr_head->dynarr_capacity) {
         dynarr_expand(ptr_head);
     }
 
-    memcpy(ptr_head->ptr_first_elem +
-               (ptr_head->dynarr_size * ptr_head->elem_size),
-           element, ptr_head->elem_size);
+    float test_input = *(float*)element;
+    float test_first_element = *(float*)ptr_head->ptr_first_elem;
+    test_first_element = test_first_element + test_input;
+
+    void* dest = ptr_head->ptr_first_elem +
+                 (ptr_head->dynarr_size * ptr_head->elem_size);
+    memcpy(dest, element, ptr_head->elem_size);
+
     ++ptr_head->dynarr_size;
+
+    return ptr_head->ptr_first_elem;
 }
 
 void dynarr_free(dynarr_head* const ptr_head) {
