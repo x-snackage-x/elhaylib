@@ -26,10 +26,6 @@ char* dynarr_push(dynarr_head* const ptr_head, const void* element) {
         dynarr_expand(ptr_head);
     }
 
-    float test_input = *(float*)element;
-    float test_first_element = *(float*)ptr_head->ptr_first_elem;
-    test_first_element = test_first_element + test_input;
-
     void* dest = ptr_head->ptr_first_elem +
                  (ptr_head->dynarr_size * ptr_head->elem_size);
     memcpy(dest, element, ptr_head->elem_size);
@@ -43,6 +39,45 @@ void dynarr_free(dynarr_head* const ptr_head) {
     free(ptr_head->ptr_first_elem);
     ptr_head->dynarr_size = 0;
     ptr_head->ptr_first_elem = NULL;
+}
+
+char* dynarr_insert(dynarr_head* const ptr_head,
+                    void const* element,
+                    size_t insert_index) {
+    if(ptr_head->dynarr_size == ptr_head->dynarr_capacity) {
+        dynarr_expand(ptr_head);
+    }
+
+    void* insert_point =
+        ptr_head->ptr_first_elem + insert_index * ptr_head->elem_size;
+    void* shift_point =
+        ptr_head->ptr_first_elem + (insert_index + 1) * ptr_head->elem_size;
+    size_t size_move =
+        (ptr_head->dynarr_size - insert_index) * ptr_head->elem_size;
+    memmove(shift_point, insert_point, size_move);
+
+    memcpy(insert_point, element, ptr_head->elem_size);
+
+    ++ptr_head->dynarr_size;
+
+    return ptr_head->ptr_first_elem;
+}
+
+void dynarr_remove(dynarr_head* const ptr_head, size_t index) {
+    dynarr_remove_n(ptr_head, index, 1);
+}
+
+void dynarr_remove_n(dynarr_head* const ptr_head,
+                     size_t index,
+                     size_t n_elements) {
+    void* start_point = ptr_head->ptr_first_elem + index * ptr_head->elem_size;
+    void* end_point =
+        ptr_head->ptr_first_elem + (index + n_elements) * ptr_head->elem_size;
+    size_t size_move =
+        (ptr_head->dynarr_size - index - n_elements) * ptr_head->elem_size;
+    memmove(start_point, end_point, size_move);
+
+    ptr_head->dynarr_size -= n_elements;
 }
 
 // internals
@@ -269,3 +304,5 @@ list_node* linlst_prepare_data_node(node_type dtype,
 
     return new_node_ptr;
 }
+
+// TREE

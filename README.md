@@ -2,19 +2,20 @@
 
 The goal is to implement dynamic structures that can hold a defined `struct` and offer all the expected functionality. 
 
-Structures to be implemented:
+Possible Structures to be implemented:
 
 ## Abstract Data Structures
 - ~~Dynamic Arrays~~ Done
-- Linked Lists
+- ~~Linked Lists~~
     - ~~Single~~ Cancelled
-    - Double
-    - Circular
+    - ~~Double~~ Done -> Default
+    - ~~Circular~~ Done
 - Stack
 - Queue 
     - Priority queue
 - Tree
     - Binary
+    - n-Tree
     - Avl
 - Graph
     - directed 

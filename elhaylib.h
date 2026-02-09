@@ -16,6 +16,14 @@ typedef struct {
 void dynarr_init(dynarr_head* const ptr_head);
 char* dynarr_push(dynarr_head* const ptr_head, void const* element);
 void dynarr_free(dynarr_head* const ptr_head);
+
+char* dynarr_insert(dynarr_head* const ptr_head,
+                    void const* element,
+                    size_t insert_index);
+void dynarr_remove(dynarr_head* const ptr_head, size_t index);
+void dynarr_remove_n(dynarr_head* const ptr_head,
+                     size_t index,
+                     size_t n_elements);
 // internals
 void dynarr_expand(dynarr_head* const ptr_head);
 
