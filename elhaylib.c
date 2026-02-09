@@ -328,3 +328,67 @@ list_node* linlst_prepare_node(node_type dtype,
 }
 
 // TREE
+void tree_init(tree_head* const ptr_head) {
+    ptr_head->tree_size = 0;
+    ptr_head->in_order_partition = 0.5f;
+    ptr_head->tree_root = NULL;
+}
+void tree_define_inorder_partition(tree_head* const ptr_head,
+                                   float inorder_partition) {
+    ptr_head->in_order_partition = inorder_partition;
+}
+
+void tree_node_root(tree_head* const ptr_head,
+                    node_type dtype,
+                    size_t data_size,
+                    void const* data) {
+    tree_node* new_node_ptr = tree_prepare_node(dtype, data_size, data);
+    ptr_head->tree_root = new_node_ptr;
+    ptr_head->tree_size++;
+}
+
+void tree_node_add(tree_head* const ptr_head,
+                   tree_node* const ptr_parent,
+                   node_type dtype,
+                   size_t data_size,
+                   void const* data) {
+    tree_node* new_node_ptr = tree_prepare_node(dtype, data_size, data);
+    new_node_ptr->parent = ptr_parent;
+
+    linked_list_head* siblings_list = ptr_parent->children;
+    linlst_append_node(siblings_list, NODE_PTR, sizeof(tree_node*),
+                       new_node_ptr);
+    ptr_head->tree_size++;
+}
+
+void tree_node_add_at_index(tree_head* const ptr_head,
+                            tree_node* const ptr_parent,
+                            node_type dtype,
+                            size_t graft_index,
+                            size_t data_size,
+                            void const* data) {
+    tree_node* new_node_ptr = tree_prepare_node(dtype, data_size, data);
+    new_node_ptr->parent = ptr_parent;
+
+    linked_list_head* siblings_list = ptr_parent->children;
+    linlst_index_insert_node(siblings_list, graft_index, NODE_PTR,
+                             sizeof(tree_node*), new_node_ptr);
+    ptr_head->tree_size++;
+}
+// internals
+tree_node* tree_prepare_node(node_type dtype,
+                             size_t data_size,
+                             void const* data) {
+    tree_node* new_node_ptr = calloc(1, sizeof(list_node) + data_size);
+
+    new_node_ptr->data_size = data_size;
+    new_node_ptr->dtype = dtype;
+    memcpy(new_node_ptr->data, data, data_size);
+
+    linked_list_head* children_linked_list = malloc(sizeof(linked_list_head));
+    children_linked_list->list_type = OPEN;
+    linlst_init(children_linked_list);
+    new_node_ptr->children = children_linked_list;
+
+    return new_node_ptr;
+}

@@ -55,6 +55,9 @@ typedef enum {
     NODE_INT64,
     NODE_UINT64,
 
+    // Pointer
+    NODE_PTR,
+
     // Reserved range for user-defined types
     NODE_USER_START = 1000
 } node_type;
@@ -116,3 +119,59 @@ void linlst_delete_list(linked_list_head* const ptr_head);
 list_node* linlst_prepare_node(node_type dtype,
                                size_t data_size,
                                void const* data);
+
+// TREE
+typedef struct tree_node tree_node;
+typedef struct {
+    size_t tree_size;
+    // defines the the partition for in-order traversal
+    // 0.0f: subtree is all R -> NR
+    // 1.0f: subtree is all L -> LN
+    // default is 0.5f
+    // -> expected behaviour for binary trees
+    // Note: User is expected to set value
+    float in_order_partition;
+    tree_node* tree_root;
+} tree_head;
+
+struct tree_node {
+    tree_node* parent;
+    linked_list_head* children;
+    node_type dtype;
+    size_t data_size;
+#ifdef _WIN32
+    char data[1];
+#else
+    char data[];
+#endif
+};
+
+void tree_init(tree_head* const ptr_head);
+void tree_define_inorder_partition(tree_head* const ptr_head,
+                                   float inorder_partition);
+void tree_node_root(tree_head* const ptr_head,
+                    node_type dtype,
+                    size_t data_size,
+                    void const* data);
+void tree_node_add(tree_head* const ptr_head,
+                   tree_node* const ptr_parent,
+                   node_type dtype,
+                   size_t data_size,
+                   void const* data);
+void tree_node_add_at_index(tree_head* const ptr_head,
+                            tree_node* const ptr_parent,
+                            node_type dtype,
+                            size_t graft_index,
+                            size_t data_size,
+                            void const* data);
+void tree_graft(tree_head* const ptr_head,
+                tree_node* ptr_parent,
+                tree_node* ptr_node,
+                size_t graft_index);
+void tree_prune(tree_head* const ptr_head, tree_node* ptr_node);
+void tree_node_delete(tree_head* const ptr_head, tree_node* ptr_node);
+void tree_free(tree_head* const ptr_head);
+// internals
+tree_node* tree_prepare_node(node_type dtype,
+                             size_t data_size,
+                             void const* data);
