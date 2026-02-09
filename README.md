@@ -12,11 +12,11 @@ Possible Structures to be implemented:
     - ~~Circular~~ Done
 - Stack
 - Queue 
-    - Priority queue
 - Tree
     - Binary
     - n-Tree
     - Avl
+- Priority Queue
 - Graph
     - directed 
     - undirected

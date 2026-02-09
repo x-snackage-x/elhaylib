@@ -69,11 +69,10 @@ typedef struct {
 } linked_list_head;
 
 struct list_node {
-    char* data;
-    node_type dtype;
-    size_t data_size;
     list_node* next_node;
     list_node* previous_node;
+    node_type dtype;
+    size_t data_size;
 #ifdef _WIN32
     char data[1];
 #else
@@ -100,11 +99,18 @@ void linlst_insert_node(linked_list_head* const ptr_head,
                         node_type dtype,
                         size_t data_size,
                         void const* data);
+void linlst_index_insert_node(linked_list_head* const ptr_head,
+                              size_t insert_index,
+                              node_type dtype,
+                              size_t data_size,
+                              void const* data);
 void linlst_get_node(linked_list_head* const ptr_head,
                      list_node_return* found_node_struct,
-                     uint8_t index);
+                     uint32_t index);
 void linlst_delete_node(linked_list_head* const ptr_head,
                         list_node* const node);
+void linlst_index_delete_node(linked_list_head* const ptr_head,
+                              size_t delete_index);
 void linlst_delete_list(linked_list_head* const ptr_head);
 // internals
 list_node* linlst_prepare_node(node_type dtype,

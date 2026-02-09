@@ -206,9 +206,24 @@ void linlst_insert_node(linked_list_head* const ptr_head,
     ptr_head->list_len++;
 }
 
+void linlst_index_insert_node(linked_list_head* const ptr_head,
+                              size_t insert_index,
+                              node_type dtype,
+                              size_t data_size,
+                              void const* data) {
+    list_node_return found_node_buffer = {0};
+    linlst_get_node(ptr_head, &found_node_buffer, insert_index);
+    if(found_node_buffer.node_found) {
+        linlst_insert_node(ptr_head, found_node_buffer.found_node_ptr, dtype,
+                           data_size, data);
+    } else {
+        linlst_append_node(ptr_head, dtype, data_size, data);
+    }
+}
+
 void linlst_get_node(linked_list_head* const ptr_head,
                      list_node_return* found_node_struct,
-                     uint8_t index) {
+                     uint32_t index) {
     if(ptr_head->list_len == 0 || ptr_head->list_len - 1 < index) {
         found_node_struct->found_node_ptr = NULL;
         found_node_struct->node_found = false;
@@ -226,7 +241,7 @@ void linlst_get_node(linked_list_head* const ptr_head,
     }
 
     found_node_struct->found_node_ptr = ptr_head->ptr_first_node;
-    for(uint8_t i = 1; i <= index; ++i) {
+    for(uint32_t i = 1; i <= index; ++i) {
         found_node_struct->found_node_ptr =
             (found_node_struct->found_node_ptr)->next_node;
     }
@@ -279,6 +294,15 @@ void linlst_delete_node(linked_list_head* const ptr_head,
     free(node);
 
     ptr_head->list_len--;
+}
+
+void linlst_index_delete_node(linked_list_head* const ptr_head,
+                              size_t delete_index) {
+    list_node_return found_node_buffer = {0};
+    linlst_get_node(ptr_head, &found_node_buffer, delete_index);
+    if(found_node_buffer.node_found) {
+        linlst_delete_node(ptr_head, found_node_buffer.found_node_ptr);
+    }
 }
 
 void linlst_delete_list(linked_list_head* const ptr_head) {

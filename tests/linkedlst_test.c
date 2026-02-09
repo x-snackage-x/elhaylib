@@ -506,7 +506,7 @@ bool test_struct_linked_list(bool no_yapping) {
     my_test_structure a_struct = {.idx = 1, .name = "Karl"};
     my_test_structure b_struct = {.idx = 2, .name = "Vladimir"};
     my_other_test_structure c_struct = {.gender = 'F', .name = "Jenny"};
-    my_other_test_structure d_struct = {.gender = 'F', .name = "Nadjia"};
+    my_other_test_structure d_struct = {.gender = 'F', .name = "Nadezhda"};
 
     my_test_structure* array_ptr_structs_a[] = {&a_struct, &b_struct};
     my_other_test_structure* array_ptr_structs_b[] = {&c_struct, &d_struct};
