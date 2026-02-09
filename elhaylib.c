@@ -105,7 +105,7 @@ void linlst_append_node(linked_list_head* const ptr_head,
                         node_type dtype,
                         size_t data_size,
                         void const* data) {
-    list_node* new_node_ptr = linlst_prepare_data_node(dtype, data_size, data);
+    list_node* new_node_ptr = linlst_prepare_node(dtype, data_size, data);
 
     list_node* old_last_node_ptr = ptr_head->ptr_last_node;
     ptr_head->ptr_last_node = new_node_ptr;
@@ -144,7 +144,7 @@ void linlst_prepend_node(linked_list_head* const ptr_head,
                          node_type dtype,
                          size_t data_size,
                          void const* data) {
-    list_node* new_node_ptr = linlst_prepare_data_node(dtype, data_size, data);
+    list_node* new_node_ptr = linlst_prepare_node(dtype, data_size, data);
 
     list_node* old_first_node_ptr = ptr_head->ptr_first_node;
 
@@ -196,7 +196,7 @@ void linlst_insert_node(linked_list_head* const ptr_head,
         return;
     }
 
-    list_node* new_node_ptr = linlst_prepare_data_node(dtype, data_size, data);
+    list_node* new_node_ptr = linlst_prepare_node(dtype, data_size, data);
 
     new_node_ptr->previous_node = pre_node;
     new_node_ptr->next_node = pre_node->next_node;
@@ -234,7 +234,6 @@ void linlst_get_node(linked_list_head* const ptr_head,
 
 void linlst_delete_node(linked_list_head* const ptr_head,
                         list_node* const node) {
-    free(node->data);
     list_node* pre_node = node->previous_node;
     list_node* post_node = node->next_node;
 
@@ -293,11 +292,10 @@ void linlst_delete_list(linked_list_head* const ptr_head) {
 }
 
 // internals
-list_node* linlst_prepare_data_node(node_type dtype,
-                                    size_t data_size,
-                                    void const* data) {
-    list_node* new_node_ptr = calloc(1, sizeof(list_node));
-    new_node_ptr->data = calloc(1, data_size);
+list_node* linlst_prepare_node(node_type dtype,
+                               size_t data_size,
+                               void const* data) {
+    list_node* new_node_ptr = calloc(1, sizeof(list_node) + data_size);
     new_node_ptr->data_size = data_size;
     new_node_ptr->dtype = dtype;
     memcpy(new_node_ptr->data, data, data_size);

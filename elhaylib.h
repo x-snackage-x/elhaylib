@@ -74,6 +74,11 @@ struct list_node {
     size_t data_size;
     list_node* next_node;
     list_node* previous_node;
+#ifdef _WIN32
+    char data[1];
+#else
+    char data[];
+#endif
 };
 
 typedef struct {
@@ -102,6 +107,6 @@ void linlst_delete_node(linked_list_head* const ptr_head,
                         list_node* const node);
 void linlst_delete_list(linked_list_head* const ptr_head);
 // internals
-list_node* linlst_prepare_data_node(node_type dtype,
-                                    size_t data_size,
-                                    void const* data);
+list_node* linlst_prepare_node(node_type dtype,
+                               size_t data_size,
+                               void const* data);
