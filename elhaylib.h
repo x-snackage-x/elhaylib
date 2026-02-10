@@ -120,6 +120,20 @@ list_node* linlst_prepare_node(node_type dtype,
                                size_t data_size,
                                void const* data);
 
+// STACK
+typedef struct {
+    linked_list_head* impl_list;
+} stack_head;
+
+stack_head* stack_init();
+bool stack_pop(stack_head* stack_head, void* data);
+bool stack_peek(stack_head* stack_head, void* data);
+void stack_push(stack_head* stack_head,
+                node_type dtype,
+                size_t data_size,
+                void const* data);
+void stack_free(stack_head* stack_head);
+
 // TREE
 typedef struct tree_node tree_node;
 typedef struct {

@@ -414,17 +414,7 @@ int main() {
 
     printf("Dynamic Array Test Suite Summary:\n");
     printf("%*s", TEST_NAMES_LENGTH, "Primitives Array Test: ");
-    if(scalers_test) {
-        printf(GRN "S" RESET);
-    } else {
-        printf(RED "F" RESET);
-    }
-    printf("\n");
+    print_test_res(scalers_test);
     printf("%*s", TEST_NAMES_LENGTH, "Struct Array Test: ");
-    if(struct_test) {
-        printf(GRN "S" RESET);
-    } else {
-        printf(RED "F" RESET);
-    }
-    printf("\n");
+    print_test_res(struct_test);
 }

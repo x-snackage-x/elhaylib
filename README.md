@@ -14,8 +14,9 @@ Possible Structures to be implemented:
 - Queue 
 - Tree
     - Binary
-    - n-Tree
+    - n-ary
     - Avl
+- Circular Buffer
 - Priority Queue
 - Graph
     - directed 

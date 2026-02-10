@@ -327,6 +327,52 @@ list_node* linlst_prepare_node(node_type dtype,
     return new_node_ptr;
 }
 
+// STACK
+stack_head* stack_init() {
+    stack_head* stack_head = calloc(1, sizeof(stack_head));
+    stack_head->impl_list->list_type = OPEN;
+    linlst_init(stack_head->impl_list);
+
+    return stack_head;
+}
+
+bool stack_pop(stack_head* stack_head, void* data) {
+    list_node* ptr_top = stack_head->impl_list->ptr_last_node;
+    if(ptr_top == NULL) {
+        return false;
+    }
+
+    size_t data_size = ptr_top->data_size;
+    memcpy(data, ptr_top->data, data_size);
+    linlst_delete_node(stack_head->impl_list, ptr_top);
+
+    return true;
+}
+
+bool stack_peek(stack_head* stack_head, void* data) {
+    list_node* ptr_top = stack_head->impl_list->ptr_last_node;
+    if(ptr_top == NULL) {
+        return false;
+    }
+
+    size_t data_size = ptr_top->data_size;
+    memcpy(data, ptr_top->data, data_size);
+
+    return true;
+}
+
+void stack_push(stack_head* stack_head,
+                node_type dtype,
+                size_t data_size,
+                void const* data) {
+    linlst_append_node(stack_head->impl_list, dtype, data_size, data);
+}
+
+void stack_free(stack_head* stack_head) {
+    linlst_delete_list(stack_head->impl_list);
+    free(stack_head);
+}
+
 // TREE
 void tree_init(tree_head* const ptr_head) {
     ptr_head->tree_size = 0;
