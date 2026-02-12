@@ -19,9 +19,14 @@ void dynarr_init(dynarr_head* const ptr_head) {
     ptr_head->dynarr_size = 0;
     ptr_head->ptr_first_elem =
         calloc(ptr_head->dynarr_capacity, ptr_head->elem_size);
+
+    if(!ptr_head->ptr_first_elem) {
+        perror("realloc failed");
+        exit(EXIT_FAILURE);
+    }
 }
 
-char* dynarr_push(dynarr_head* const ptr_head, const void* element) {
+char* dynarr_append(dynarr_head* const ptr_head, const void* element) {
     if(ptr_head->dynarr_size == ptr_head->dynarr_capacity) {
         dynarr_expand(ptr_head);
     }
@@ -37,6 +42,7 @@ char* dynarr_push(dynarr_head* const ptr_head, const void* element) {
 
 void dynarr_free(dynarr_head* const ptr_head) {
     free(ptr_head->ptr_first_elem);
+    ptr_head->dynarr_capacity = 0;
     ptr_head->dynarr_size = 0;
     ptr_head->ptr_first_elem = NULL;
 }
@@ -44,6 +50,9 @@ void dynarr_free(dynarr_head* const ptr_head) {
 char* dynarr_insert(dynarr_head* const ptr_head,
                     void const* element,
                     size_t insert_index) {
+    assert(insert_index <= ptr_head->dynarr_size &&
+           "Inserts must be within current Dyn-Array bounds.");
+
     if(ptr_head->dynarr_size == ptr_head->dynarr_capacity) {
         dynarr_expand(ptr_head);
     }
@@ -70,11 +79,18 @@ void dynarr_remove(dynarr_head* const ptr_head, size_t index) {
 void dynarr_remove_n(dynarr_head* const ptr_head,
                      size_t index,
                      size_t n_elements) {
+    assert(index <= ptr_head->dynarr_size &&
+           "Index must be within current Dyn-Array bounds.");
+    assert(
+        index + n_elements <= ptr_head->dynarr_size &&
+        "All elements to be removed must be within current Dyn-Array bounds.");
+
     void* start_point = ptr_head->ptr_first_elem + index * ptr_head->elem_size;
     void* end_point =
         ptr_head->ptr_first_elem + (index + n_elements) * ptr_head->elem_size;
     size_t size_move =
         (ptr_head->dynarr_size - index - n_elements) * ptr_head->elem_size;
+
     memmove(start_point, end_point, size_move);
 
     ptr_head->dynarr_size -= n_elements;
@@ -82,15 +98,17 @@ void dynarr_remove_n(dynarr_head* const ptr_head,
 
 // internals
 void dynarr_expand(dynarr_head* const ptr_head) {
-    ptr_head->dynarr_capacity =
+    size_t new_capacity =
         (size_t)(ptr_head->dynarr_capacity * ptr_head->growth_fac);
-    void* new_ptr = realloc(ptr_head->ptr_first_elem,
-                            ptr_head->dynarr_capacity * ptr_head->elem_size);
+    void* new_ptr =
+        realloc(ptr_head->ptr_first_elem, new_capacity * ptr_head->elem_size);
+
     if(!new_ptr) {
         perror("realloc failed");
         exit(EXIT_FAILURE);
     }
     ptr_head->ptr_first_elem = new_ptr;
+    ptr_head->dynarr_capacity = new_capacity;
 }
 
 // LINKED LIST

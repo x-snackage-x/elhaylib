@@ -64,7 +64,7 @@ bool test_primitive_types(bool no_yapping) {
         printf("Before Cap.: %zu\n", my_arr.dynarr_capacity);
     }
 
-    ptr_head_float = (float*)dynarr_push(&my_arr, &my_floats[3]);
+    ptr_head_float = (float*)dynarr_append(&my_arr, &my_floats[3]);
     if(!no_yapping) {
         printf("After Size: %zu\n", my_arr.dynarr_size);
         printf("After Cap.: %zu\n", my_arr.dynarr_capacity);
@@ -75,7 +75,7 @@ bool test_primitive_types(bool no_yapping) {
             printf("%ld-th Element = %f\n", i, *(ptr_head_float + i));
     }
 
-    ptr_head_float = (float*)dynarr_push(&my_arr, &my_floats[4]);
+    ptr_head_float = (float*)dynarr_append(&my_arr, &my_floats[4]);
     if(!no_yapping) {
         printf("%*s", TEST_NAMES_LENGTH, "Result: ");
         print_test_res(sub_tests[1]);
@@ -196,8 +196,8 @@ bool test_struct(bool no_yapping) {
                                           {4, 4.1f, 4.2, 0}};
     my_structs_shrunk[1].aPointer = &my_structs[2];
 
-    ptr_head = (my_test_struct*)dynarr_push(&my_arr, &my_structs[0]);
-    ptr_head = (my_test_struct*)dynarr_push(&my_arr, &my_structs[1]);
+    ptr_head = (my_test_struct*)dynarr_append(&my_arr, &my_structs[0]);
+    ptr_head = (my_test_struct*)dynarr_append(&my_arr, &my_structs[1]);
 
     my_test_struct* ptr_data = 0;
     for(long unsigned int i = 0; i < my_arr.dynarr_size; ++i) {
@@ -243,7 +243,7 @@ bool test_struct(bool no_yapping) {
         }
     }
 
-    ptr_head = (my_test_struct*)dynarr_push(&my_arr, &my_structs[2]);
+    ptr_head = (my_test_struct*)dynarr_append(&my_arr, &my_structs[2]);
     if(!no_yapping) {
         printf("After Size: %zu\n", my_arr.dynarr_size);
         printf("After Cap.: %zu\n", my_arr.dynarr_capacity);
@@ -266,7 +266,7 @@ bool test_struct(bool no_yapping) {
         }
     }
 
-    ptr_head = (my_test_struct*)dynarr_push(&my_arr, &my_structs[3]);
+    ptr_head = (my_test_struct*)dynarr_append(&my_arr, &my_structs[3]);
     if(!no_yapping) {
         printf("%*s", TEST_NAMES_LENGTH, "Result: ");
         print_test_res(sub_tests[1]);
