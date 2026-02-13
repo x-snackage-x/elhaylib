@@ -62,13 +62,11 @@ typedef enum {
     NODE_USER_START = 1000
 } node_type;
 
-typedef enum { OPEN = 1, CIRCULAR } list_type;
 typedef struct list_node list_node;
 typedef struct {
-    list_type list_type;
     size_t list_len;
     list_node* ptr_first_node;
-    list_node* ptr_last_node;
+    list_node* ptr_sentinel_node;
 } linked_list_head;
 
 struct list_node {
@@ -102,14 +100,23 @@ void linlst_insert_node(linked_list_head* const ptr_head,
                         node_type dtype,
                         size_t data_size,
                         void const* data);
-void linlst_index_insert_node(linked_list_head* const ptr_head,
+list_node* linlst_next_circular(linked_list_head* const ptr_head,
+                                list_node* cur_node);
+list_node* linlst_prev_circular(linked_list_head* const ptr_head,
+                                list_node* cur_node);
+bool linlst_index_insert_node(linked_list_head* const ptr_head,
                               size_t insert_index,
                               node_type dtype,
                               size_t data_size,
                               void const* data);
+void linlst_index_insert_clamped(linked_list_head* const ptr_head,
+                                 size_t insert_index,
+                                 node_type dtype,
+                                 size_t data_size,
+                                 void const* data);
 void linlst_get_node(linked_list_head* const ptr_head,
                      list_node_return* found_node_struct,
-                     uint32_t index);
+                     uint64_t index);
 void linlst_delete_node(linked_list_head* const ptr_head,
                         list_node* const node);
 void linlst_index_delete_node(linked_list_head* const ptr_head,

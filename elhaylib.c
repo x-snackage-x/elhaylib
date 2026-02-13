@@ -113,10 +113,16 @@ void dynarr_expand(dynarr_head* const ptr_head) {
 
 // LINKED LIST
 void linlst_init(linked_list_head* const ptr_head) {
-    assert(ptr_head->list_type > 0 && "List-type must be defined");
     ptr_head->list_len = 0;
-    ptr_head->ptr_first_node = NULL;
-    ptr_head->ptr_last_node = NULL;
+
+    char zero = 0;
+    list_node* sentinel_node_ptr =
+        linlst_prepare_node(NODE_CHAR, sizeof(char), &zero);
+    sentinel_node_ptr->previous_node = sentinel_node_ptr;
+    sentinel_node_ptr->next_node = sentinel_node_ptr;
+
+    ptr_head->ptr_first_node = sentinel_node_ptr;
+    ptr_head->ptr_sentinel_node = sentinel_node_ptr;
 }
 
 void linlst_append_node(linked_list_head* const ptr_head,
@@ -124,36 +130,17 @@ void linlst_append_node(linked_list_head* const ptr_head,
                         size_t data_size,
                         void const* data) {
     list_node* new_node_ptr = linlst_prepare_node(dtype, data_size, data);
+    list_node* ptr_sentinel = ptr_head->ptr_sentinel_node;
+    list_node* old_last_node = ptr_sentinel->previous_node;
 
-    list_node* old_last_node_ptr = ptr_head->ptr_last_node;
-    ptr_head->ptr_last_node = new_node_ptr;
-    if(ptr_head->list_len == 0) {
-        ptr_head->list_len++;
+    if(ptr_head->ptr_first_node == ptr_sentinel) {
         ptr_head->ptr_first_node = new_node_ptr;
-
-        switch(ptr_head->list_type) {
-            case CIRCULAR:
-                new_node_ptr->next_node = new_node_ptr;
-                new_node_ptr->previous_node = new_node_ptr;
-                break;
-            case OPEN:
-                break;
-        }
-        return;
     }
 
-    old_last_node_ptr->next_node = new_node_ptr;
-    new_node_ptr->previous_node = old_last_node_ptr;
-
-    switch(ptr_head->list_type) {
-        case CIRCULAR:
-            new_node_ptr->next_node = ptr_head->ptr_first_node;
-            ptr_head->ptr_last_node = new_node_ptr;
-            ptr_head->ptr_first_node->previous_node = new_node_ptr;
-            break;
-        case OPEN:
-            break;
-    }
+    new_node_ptr->next_node = ptr_sentinel;
+    new_node_ptr->previous_node = old_last_node;
+    ptr_sentinel->previous_node = new_node_ptr;
+    old_last_node->next_node = new_node_ptr;
 
     ptr_head->list_len++;
 }
@@ -163,37 +150,14 @@ void linlst_prepend_node(linked_list_head* const ptr_head,
                          size_t data_size,
                          void const* data) {
     list_node* new_node_ptr = linlst_prepare_node(dtype, data_size, data);
+    list_node* ptr_sentinel = ptr_head->ptr_sentinel_node;
 
-    list_node* old_first_node_ptr = ptr_head->ptr_first_node;
+    new_node_ptr->next_node = ptr_head->ptr_first_node;
+    new_node_ptr->previous_node = ptr_sentinel;
 
+    ptr_head->ptr_first_node->previous_node = new_node_ptr;
+    ptr_sentinel->next_node = new_node_ptr;
     ptr_head->ptr_first_node = new_node_ptr;
-    if(ptr_head->list_len == 0) {
-        ptr_head->list_len++;
-        ptr_head->ptr_last_node = new_node_ptr;
-
-        switch(ptr_head->list_type) {
-            case CIRCULAR:
-                new_node_ptr->next_node = new_node_ptr;
-                new_node_ptr->previous_node = new_node_ptr;
-                break;
-            case OPEN:
-                break;
-        }
-
-        return;
-    }
-
-    old_first_node_ptr->previous_node = new_node_ptr;
-    new_node_ptr->next_node = old_first_node_ptr;
-
-    switch(ptr_head->list_type) {
-        case CIRCULAR:
-            new_node_ptr->previous_node = ptr_head->ptr_last_node;
-            ptr_head->ptr_last_node->next_node = new_node_ptr;
-            break;
-        case OPEN:
-            break;
-    }
 
     ptr_head->list_len++;
 }
@@ -203,45 +167,66 @@ void linlst_insert_node(linked_list_head* const ptr_head,
                         node_type dtype,
                         size_t data_size,
                         void const* data) {
-    if(pre_node->next_node == NULL ||
-       pre_node->next_node == ptr_head->ptr_first_node) {
-        linlst_append_node(ptr_head, dtype, data_size, data);
-        return;
-    }
-
-    if(pre_node == NULL) {
-        linlst_prepend_node(ptr_head, dtype, data_size, data);
-        return;
-    }
-
     list_node* new_node_ptr = linlst_prepare_node(dtype, data_size, data);
 
     new_node_ptr->previous_node = pre_node;
     new_node_ptr->next_node = pre_node->next_node;
     pre_node->next_node = new_node_ptr;
-    (new_node_ptr->next_node)->previous_node = new_node_ptr;
+    new_node_ptr->next_node->previous_node = new_node_ptr;
 
     ptr_head->list_len++;
 }
 
-void linlst_index_insert_node(linked_list_head* const ptr_head,
+list_node* linlst_next_circular(linked_list_head* const ptr_head,
+                                list_node* cur_node) {
+    cur_node = cur_node->next_node;
+    return (cur_node == ptr_head->ptr_sentinel_node) ? cur_node->next_node
+                                                     : cur_node;
+}
+
+list_node* linlst_prev_circular(linked_list_head* const ptr_head,
+                                list_node* cur_node) {
+    cur_node = cur_node->previous_node;
+    return (cur_node == ptr_head->ptr_sentinel_node) ? cur_node->previous_node
+                                                     : cur_node;
+}
+
+bool linlst_index_insert_node(linked_list_head* const ptr_head,
                               size_t insert_index,
                               node_type dtype,
                               size_t data_size,
                               void const* data) {
+    if(insert_index > ptr_head->list_len) {
+        return false;
+    }
+
+    linlst_index_insert_clamped(ptr_head, insert_index, dtype, data_size, data);
+    return true;
+}
+
+void linlst_index_insert_clamped(linked_list_head* const ptr_head,
+                                 size_t insert_index,
+                                 node_type dtype,
+                                 size_t data_size,
+                                 void const* data) {
+    if(insert_index == 0) {
+        linlst_prepend_node(ptr_head, dtype, data_size, data);
+        return;
+    } else if(insert_index >= ptr_head->list_len) {
+        linlst_append_node(ptr_head, dtype, data_size, data);
+        return;
+    }
+
     list_node_return found_node_buffer = {0};
     linlst_get_node(ptr_head, &found_node_buffer, insert_index);
-    if(found_node_buffer.node_found) {
-        linlst_insert_node(ptr_head, found_node_buffer.found_node_ptr, dtype,
-                           data_size, data);
-    } else {
-        linlst_append_node(ptr_head, dtype, data_size, data);
-    }
+    linlst_insert_node(ptr_head,
+                       found_node_buffer.found_node_ptr->previous_node, dtype,
+                       data_size, data);
 }
 
 void linlst_get_node(linked_list_head* const ptr_head,
                      list_node_return* found_node_struct,
-                     uint32_t index) {
+                     uint64_t index) {
     if(ptr_head->list_len == 0 || ptr_head->list_len - 1 < index) {
         found_node_struct->found_node_ptr = NULL;
         found_node_struct->node_found = false;
@@ -254,12 +239,13 @@ void linlst_get_node(linked_list_head* const ptr_head,
         return;
     }
     if(index == ptr_head->list_len - 1) {
-        found_node_struct->found_node_ptr = ptr_head->ptr_last_node;
+        found_node_struct->found_node_ptr =
+            ptr_head->ptr_sentinel_node->previous_node;
         return;
     }
 
     found_node_struct->found_node_ptr = ptr_head->ptr_first_node;
-    for(uint32_t i = 1; i <= index; ++i) {
+    for(uint64_t i = 1; i <= index; ++i) {
         found_node_struct->found_node_ptr =
             (found_node_struct->found_node_ptr)->next_node;
     }
@@ -267,51 +253,24 @@ void linlst_get_node(linked_list_head* const ptr_head,
 
 void linlst_delete_node(linked_list_head* const ptr_head,
                         list_node* const node) {
+    if(node == ptr_head->ptr_sentinel_node) {
+        return;
+    }
+
+    if(node == ptr_head->ptr_first_node) {
+        ptr_head->ptr_first_node = node->next_node;
+    }
+
     list_node* pre_node = node->previous_node;
     list_node* post_node = node->next_node;
 
-    if(pre_node != NULL && post_node != NULL) {
-        post_node->previous_node = pre_node;
-        pre_node->next_node = post_node;
-    } else if(pre_node != NULL && post_node == NULL) {
-        pre_node->next_node = NULL;
-    } else if(pre_node == NULL && post_node != NULL) {
-        post_node->previous_node = NULL;
-    }
-
-    switch(ptr_head->list_type) {
-        case OPEN:
-            if(ptr_head->ptr_first_node == node) {
-                if(pre_node == NULL) {
-                    ptr_head->ptr_first_node = post_node;
-                } else {
-                    ptr_head->ptr_first_node = pre_node;
-                }
-            }
-
-            if(ptr_head->ptr_last_node == node) {
-                if(post_node == NULL) {
-                    ptr_head->ptr_last_node = pre_node;
-                } else {
-                    ptr_head->ptr_last_node = post_node;
-                }
-            }
-            break;
-
-        case CIRCULAR:
-            if(ptr_head->ptr_first_node == node) {
-                ptr_head->ptr_first_node = post_node;
-            }
-
-            if(ptr_head->ptr_last_node == node) {
-                ptr_head->ptr_last_node = pre_node;
-            }
-            break;
-    }
+    pre_node->next_node = post_node;
+    post_node->previous_node = pre_node;
 
     free(node);
-
-    ptr_head->list_len--;
+    if(--ptr_head->list_len == 0) {
+        ptr_head->ptr_first_node = ptr_head->ptr_sentinel_node;
+    }
 }
 
 void linlst_index_delete_node(linked_list_head* const ptr_head,
@@ -324,13 +283,18 @@ void linlst_index_delete_node(linked_list_head* const ptr_head,
 }
 
 void linlst_delete_list(linked_list_head* const ptr_head) {
-    list_node* cur_last_node = ptr_head->ptr_last_node;
-    while(ptr_head->list_len > 0) {
-        linlst_delete_node(ptr_head, cur_last_node);
-        cur_last_node = ptr_head->ptr_last_node;
+    list_node* cur_node = ptr_head->ptr_first_node;
+    while(cur_node != ptr_head->ptr_sentinel_node) {
+        list_node* node_next = cur_node->next_node;
+        free(cur_node);
+        cur_node = node_next;
     }
 
-    linlst_init(ptr_head);
+    list_node* sentinel_node_ptr = ptr_head->ptr_sentinel_node;
+    sentinel_node_ptr->previous_node = sentinel_node_ptr;
+    sentinel_node_ptr->next_node = sentinel_node_ptr;
+    ptr_head->ptr_first_node = sentinel_node_ptr;
+    ptr_head->list_len = 0;
 }
 
 // internals
@@ -338,6 +302,11 @@ list_node* linlst_prepare_node(node_type dtype,
                                size_t data_size,
                                void const* data) {
     list_node* new_node_ptr = calloc(1, sizeof(list_node) + data_size);
+    if(!new_node_ptr) {
+        perror("calloc failed");
+        exit(EXIT_FAILURE);
+    }
+
     new_node_ptr->data_size = data_size;
     new_node_ptr->dtype = dtype;
     memcpy(new_node_ptr->data, data, data_size);
@@ -348,18 +317,24 @@ list_node* linlst_prepare_node(node_type dtype,
 // STACK
 stack_head* stack_init() {
     stack_head* stack_head = calloc(1, sizeof(stack_head));
-    stack_head->impl_list->list_type = OPEN;
+    if(!stack_head) {
+        perror("calloc failed");
+        exit(EXIT_FAILURE);
+    }
+
     linlst_init(stack_head->impl_list);
 
     return stack_head;
 }
 
 bool stack_pop(stack_head* stack_head, void* data) {
-    list_node* ptr_top = stack_head->impl_list->ptr_last_node;
-    if(ptr_top == NULL) {
+    if(stack_head->impl_list->ptr_first_node ==
+       stack_head->impl_list->ptr_sentinel_node) {
         return false;
     }
 
+    list_node* ptr_top =
+        stack_head->impl_list->ptr_sentinel_node->previous_node;
     size_t data_size = ptr_top->data_size;
     memcpy(data, ptr_top->data, data_size);
     linlst_delete_node(stack_head->impl_list, ptr_top);
@@ -368,11 +343,13 @@ bool stack_pop(stack_head* stack_head, void* data) {
 }
 
 bool stack_peek(stack_head* stack_head, void* data) {
-    list_node* ptr_top = stack_head->impl_list->ptr_last_node;
-    if(ptr_top == NULL) {
+    if(stack_head->impl_list->ptr_first_node ==
+       stack_head->impl_list->ptr_sentinel_node) {
         return false;
     }
 
+    list_node* ptr_top =
+        stack_head->impl_list->ptr_sentinel_node->previous_node;
     size_t data_size = ptr_top->data_size;
     memcpy(data, ptr_top->data, data_size);
 
@@ -450,7 +427,6 @@ tree_node* tree_prepare_node(node_type dtype,
     memcpy(new_node_ptr->data, data, data_size);
 
     linked_list_head* children_linked_list = malloc(sizeof(linked_list_head));
-    children_linked_list->list_type = OPEN;
     linlst_init(children_linked_list);
     new_node_ptr->children = children_linked_list;
 
