@@ -21,7 +21,7 @@ void dynarr_init(dynarr_head* const ptr_head) {
         calloc(ptr_head->dynarr_capacity, ptr_head->elem_size);
 
     if(!ptr_head->ptr_first_elem) {
-        perror("realloc failed");
+        perror("calloc failed");
         exit(EXIT_FAILURE);
     }
 }
@@ -79,10 +79,10 @@ void dynarr_remove(dynarr_head* const ptr_head, size_t index) {
 void dynarr_remove_n(dynarr_head* const ptr_head,
                      size_t index,
                      size_t n_elements) {
-    assert(index <= ptr_head->dynarr_size &&
+    assert(index < ptr_head->dynarr_size &&
            "Index must be within current Dyn-Array bounds.");
     assert(
-        index + n_elements <= ptr_head->dynarr_size &&
+        index + n_elements < ptr_head->dynarr_size &&
         "All elements to be removed must be within current Dyn-Array bounds.");
 
     void* start_point = ptr_head->ptr_first_elem + index * ptr_head->elem_size;
@@ -315,57 +315,53 @@ list_node* linlst_prepare_node(node_type dtype,
 }
 
 // STACK
-stack_head* stack_init() {
-    stack_head* stack_head = calloc(1, sizeof(stack_head));
-    if(!stack_head) {
+stack_head* stack_init(size_t elem_size) {
+    assert(elem_size > 0 && "Element size must be greater zero.");
+
+    stack_head* stack = calloc(1, sizeof(*stack));
+    if(!stack) {
         perror("calloc failed");
         exit(EXIT_FAILURE);
     }
 
-    linlst_init(stack_head->impl_list);
+    stack->impl_array.elem_size = elem_size;
 
-    return stack_head;
+    dynarr_init(&stack->impl_array);
+
+    return stack;
 }
 
-bool stack_pop(stack_head* stack_head, void* data) {
-    if(stack_head->impl_list->ptr_first_node ==
-       stack_head->impl_list->ptr_sentinel_node) {
+bool stack_pop(stack_head* stack, void* out) {
+    bool is_ok = stack_peek(stack, out);
+    if(is_ok) {
+        --stack->impl_array.dynarr_size;
+    }
+
+    return is_ok;
+}
+
+bool stack_peek(stack_head* stack, void* out) {
+    if(stack->impl_array.dynarr_size == 0) {
         return false;
     }
 
-    list_node* ptr_top =
-        stack_head->impl_list->ptr_sentinel_node->previous_node;
-    size_t data_size = ptr_top->data_size;
-    memcpy(data, ptr_top->data, data_size);
-    linlst_delete_node(stack_head->impl_list, ptr_top);
+    size_t data_size = stack->impl_array.elem_size;
+    char* ptr_stack_base = stack->impl_array.ptr_first_elem;
+    size_t index_top = stack->impl_array.dynarr_size - 1;
+    char* ptr_top = ptr_stack_base + data_size * index_top;
+
+    memcpy(out, ptr_top, data_size);
 
     return true;
 }
 
-bool stack_peek(stack_head* stack_head, void* data) {
-    if(stack_head->impl_list->ptr_first_node ==
-       stack_head->impl_list->ptr_sentinel_node) {
-        return false;
-    }
-
-    list_node* ptr_top =
-        stack_head->impl_list->ptr_sentinel_node->previous_node;
-    size_t data_size = ptr_top->data_size;
-    memcpy(data, ptr_top->data, data_size);
-
-    return true;
+void stack_push(stack_head* stack, void const* in) {
+    dynarr_append(&stack->impl_array, in);
 }
 
-void stack_push(stack_head* stack_head,
-                node_type dtype,
-                size_t data_size,
-                void const* data) {
-    linlst_append_node(stack_head->impl_list, dtype, data_size, data);
-}
-
-void stack_free(stack_head* stack_head) {
-    linlst_delete_list(stack_head->impl_list);
-    free(stack_head);
+void stack_free(stack_head* stack) {
+    dynarr_free(&stack->impl_array);
+    free(stack);
 }
 
 // TREE

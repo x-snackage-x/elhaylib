@@ -129,17 +129,14 @@ list_node* linlst_prepare_node(node_type dtype,
 
 // STACK
 typedef struct {
-    linked_list_head* impl_list;
+    dynarr_head impl_array;
 } stack_head;
 
-stack_head* stack_init();
-bool stack_pop(stack_head* stack_head, void* data);
-bool stack_peek(stack_head* stack_head, void* data);
-void stack_push(stack_head* stack_head,
-                node_type dtype,
-                size_t data_size,
-                void const* data);
-void stack_free(stack_head* stack_head);
+stack_head* stack_init(size_t elem_size);
+bool stack_pop(stack_head* stack, void* out);
+bool stack_peek(stack_head* stack, void* out);
+void stack_push(stack_head* stack, void const* in);
+void stack_free(stack_head* stack);
 
 // TREE
 typedef struct tree_node tree_node;
