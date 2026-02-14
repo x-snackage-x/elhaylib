@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-typedef enum { OK } ERROR_CODES;
+typedef enum { OK, SUBTREE_UNATACHED } ERROR_CODES;
 
 // DYNAMIC ARRAY
 typedef struct {
@@ -154,29 +154,57 @@ struct tree_node {
 #endif
 };
 
+typedef struct {
+    ERROR_CODES code;
+    tree_node* node_ptr;
+} tree_op_res;
+
 void tree_init(tree_head* const ptr_head);
-void tree_node_root(tree_head* const ptr_head,
+void tree_node_root(tree_op_res* op_res,
+                    tree_head* const ptr_head,
                     node_type dtype,
                     size_t data_size,
                     void const* data);
-void tree_node_add(tree_head* const ptr_head,
+void tree_node_add(tree_op_res* op_res,
+                   tree_head* const ptr_head,
                    tree_node* const ptr_parent,
                    node_type dtype,
                    size_t data_size,
                    void const* data);
-void tree_node_add_at_index(tree_head* const ptr_head,
+void tree_node_add_at_index(tree_op_res* op_res,
+                            tree_head* const ptr_head,
                             tree_node* const ptr_parent,
-                            node_type dtype,
                             size_t graft_index,
+                            node_type dtype,
                             size_t data_size,
                             void const* data);
-void tree_graft(tree_head* const ptr_head,
-                tree_node* ptr_parent,
-                tree_node* ptr_node,
-                size_t graft_index);
-void tree_prune(tree_head* const ptr_head, tree_node* ptr_node);
-void tree_node_delete(tree_head* const ptr_head, tree_node* ptr_node);
-void tree_free(tree_head* const ptr_head);
+
+void tree_node_delete(tree_op_res* op_res,
+                      tree_head* const ptr_head,
+                      tree_node* ptr_node);
+
+void tree_detach_subtree(tree_op_res* op_res,
+                         tree_head* const ptr_head,
+                         tree_node* ptr_node);
+void tree_graft_subtree(tree_op_res* op_res,
+                        tree_head* const ptr_head,
+                        tree_node* ptr_new_parent,
+                        tree_node* ptr_node,
+                        size_t graft_index);
+void tree_detach_graft_subtree(tree_op_res* op_res,
+                               tree_head* const ptr_src_tree,
+                               tree_head* const ptr_dest_tree,
+                               tree_node* ptr_new_parent,
+                               tree_node* ptr_node,
+                               size_t graft_index);
+
+void tree_prune(tree_op_res* op_res,
+                tree_head* const ptr_head,
+                tree_node* ptr_node);
+void tree_free(tree_op_res* op_res, tree_head* const ptr_head);
+
+tree_node* tree_get_ith_node_ptr(tree_node* ptr_node, size_t i);
+size_t tree_count_nodes(tree_node* ptr_node);
 
 // TREE Traversals
 // Approach: a subtree node ptr is passed with a initialized stack

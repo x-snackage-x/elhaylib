@@ -370,16 +370,21 @@ void tree_init(tree_head* const ptr_head) {
     ptr_head->tree_root = NULL;
 }
 
-void tree_node_root(tree_head* const ptr_head,
+void tree_node_root(tree_op_res* op_res,
+                    tree_head* const ptr_head,
                     node_type dtype,
                     size_t data_size,
                     void const* data) {
     tree_node* new_node_ptr = tree_prepare_node(dtype, data_size, data);
     ptr_head->tree_root = new_node_ptr;
     ptr_head->tree_size++;
+
+    op_res->code = OK;
+    op_res->node_ptr = new_node_ptr;
 }
 
-void tree_node_add(tree_head* const ptr_head,
+void tree_node_add(tree_op_res* op_res,
+                   tree_head* const ptr_head,
                    tree_node* const ptr_parent,
                    node_type dtype,
                    size_t data_size,
@@ -387,25 +392,99 @@ void tree_node_add(tree_head* const ptr_head,
     tree_node* new_node_ptr = tree_prepare_node(dtype, data_size, data);
     new_node_ptr->parent = ptr_parent;
 
-    dynarr_head child_nodes_head = ptr_parent->children;
-    dynarr_append(&child_nodes_head, new_node_ptr);
-
+    dynarr_head* child_nodes_head = &ptr_parent->children;
+    dynarr_append(child_nodes_head, &new_node_ptr);
     ptr_head->tree_size++;
+
+    op_res->code = OK;
+    op_res->node_ptr = new_node_ptr;
 }
 
-void tree_node_add_at_index(tree_head* const ptr_head,
+void tree_node_add_at_index(tree_op_res* op_res,
+                            tree_head* const ptr_head,
                             tree_node* const ptr_parent,
-                            node_type dtype,
                             size_t graft_index,
+                            node_type dtype,
                             size_t data_size,
                             void const* data) {
     tree_node* new_node_ptr = tree_prepare_node(dtype, data_size, data);
     new_node_ptr->parent = ptr_parent;
 
-    dynarr_head child_nodes_head = ptr_parent->children;
-    dynarr_insert(&child_nodes_head, new_node_ptr, graft_index);
-
+    dynarr_head* child_nodes_head = &ptr_parent->children;
+    dynarr_insert(child_nodes_head, &new_node_ptr, graft_index);
     ptr_head->tree_size++;
+
+    op_res->code = OK;
+    op_res->node_ptr = new_node_ptr;
+}
+
+void tree_detach_subtree(tree_op_res* op_res,
+                         tree_head* const ptr_head,
+                         tree_node* ptr_node) {
+    tree_node* ptr_parent = ptr_node->parent;
+    if(ptr_parent == NULL) {
+        op_res->code = SUBTREE_UNATACHED;
+        op_res->node_ptr = NULL;
+        return;
+    }
+
+    // find index of node in parent children array
+    size_t node_index = 0;
+    tree_node* test_node_ptr = (tree_node*)ptr_parent->children.ptr_first_elem;
+    while(test_node_ptr != ptr_node) {
+        assert(node_index < ptr_parent->children.dynarr_size &&
+               "Tree Corruption: Node not found in parent children array.");
+        ++node_index;
+        ++test_node_ptr;
+    }
+
+    // remove ptr from parent children array
+    dynarr_remove(&ptr_parent->children, node_index);
+    ptr_node->parent = NULL;
+    size_t subtree_size = tree_count_nodes(ptr_node);
+    ptr_head->tree_size -= subtree_size;
+
+    op_res->code = OK;
+    op_res->node_ptr = NULL;
+}
+
+void tree_graft_subtree(tree_op_res* op_res,
+                        tree_head* const ptr_head,
+                        tree_node* ptr_new_parent,
+                        tree_node* ptr_node,
+                        size_t graft_index) {
+    size_t subtree_size = tree_count_nodes(ptr_node);
+
+    dynarr_head* child_nodes_head = &ptr_new_parent->children;
+    dynarr_insert(child_nodes_head, ptr_node, graft_index);
+    ptr_node->parent = ptr_new_parent;
+    ptr_head->tree_size += subtree_size;
+
+    op_res->code = OK;
+    op_res->node_ptr = ptr_node;
+}
+
+tree_node* tree_get_ith_node_ptr(tree_node* ptr_node, size_t i) {
+    tree_node** pointer_to_children_pointers =
+        (tree_node**)ptr_node->children.ptr_first_elem;
+    tree_node* child_node_ptr = *(pointer_to_children_pointers + i);
+
+    return child_node_ptr;
+}
+
+size_t tree_count_nodes(tree_node* ptr_node) {
+    size_t tree_count = 1;
+    size_t children_count = ptr_node->children.dynarr_size;
+    if(children_count == 0) {
+        return tree_count;
+    } else {
+        for(size_t i = 0; i < children_count; ++i) {
+            tree_node* current_child_ptr = tree_get_ith_node_ptr(ptr_node, i);
+            tree_count += tree_count_nodes(current_child_ptr++);
+        }
+    }
+
+    return tree_count;
 }
 
 // To prune a subtree and free its memory it is necessary to
@@ -427,7 +506,7 @@ void tree_node_add_at_index(tree_head* const ptr_head,
 tree_node* tree_prepare_node(node_type dtype,
                              size_t data_size,
                              void const* data) {
-    tree_node* new_node_ptr = calloc(1, sizeof(list_node) + data_size);
+    tree_node* new_node_ptr = calloc(1, sizeof(tree_node) + data_size);
 
     new_node_ptr->data_size = data_size;
     new_node_ptr->dtype = dtype;
