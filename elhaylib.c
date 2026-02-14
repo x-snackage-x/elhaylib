@@ -367,12 +367,7 @@ void stack_free(stack_head* stack) {
 // TREE
 void tree_init(tree_head* const ptr_head) {
     ptr_head->tree_size = 0;
-    ptr_head->in_order_partition = 0.5f;
     ptr_head->tree_root = NULL;
-}
-void tree_define_inorder_partition(tree_head* const ptr_head,
-                                   float inorder_partition) {
-    ptr_head->in_order_partition = inorder_partition;
 }
 
 void tree_node_root(tree_head* const ptr_head,
@@ -392,9 +387,9 @@ void tree_node_add(tree_head* const ptr_head,
     tree_node* new_node_ptr = tree_prepare_node(dtype, data_size, data);
     new_node_ptr->parent = ptr_parent;
 
-    linked_list_head* siblings_list = ptr_parent->children;
-    linlst_append_node(siblings_list, NODE_PTR, sizeof(tree_node*),
-                       new_node_ptr);
+    dynarr_head child_nodes_head = ptr_parent->children;
+    dynarr_append(&child_nodes_head, new_node_ptr);
+
     ptr_head->tree_size++;
 }
 
@@ -407,11 +402,27 @@ void tree_node_add_at_index(tree_head* const ptr_head,
     tree_node* new_node_ptr = tree_prepare_node(dtype, data_size, data);
     new_node_ptr->parent = ptr_parent;
 
-    linked_list_head* siblings_list = ptr_parent->children;
-    linlst_index_insert_node(siblings_list, graft_index, NODE_PTR,
-                             sizeof(tree_node*), new_node_ptr);
+    dynarr_head child_nodes_head = ptr_parent->children;
+    dynarr_insert(&child_nodes_head, new_node_ptr, graft_index);
+
     ptr_head->tree_size++;
 }
+
+// To prune a subtree and free its memory it is necessary to
+// visit every node and free:
+//  1. The node's linked list of pointers and then
+//  2. The node itself
+// The nodes need to be visited in Post-order(LRN)
+//
+// Implementation approach:
+// 1. Create a stack of pointers to all to be freed nodes in Post-order(LRN)
+// 2. Pop the stack and free the node's list and then the node
+// void tree_prune(tree_head* const ptr_head, tree_node* ptr_node) {}
+
+// A tree free is a tree prune with the tree root as the prune
+// subtree root
+// void tree_free(tree_head* const ptr_head) {}
+
 // internals
 tree_node* tree_prepare_node(node_type dtype,
                              size_t data_size,
@@ -422,9 +433,9 @@ tree_node* tree_prepare_node(node_type dtype,
     new_node_ptr->dtype = dtype;
     memcpy(new_node_ptr->data, data, data_size);
 
-    linked_list_head* children_linked_list = malloc(sizeof(linked_list_head));
-    linlst_init(children_linked_list);
-    new_node_ptr->children = children_linked_list;
+    new_node_ptr->children.dynarr_size = 2;
+    new_node_ptr->children.elem_size = sizeof(tree_node*);
+    dynarr_init(&new_node_ptr->children);
 
     return new_node_ptr;
 }

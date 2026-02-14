@@ -55,9 +55,6 @@ typedef enum {
     NODE_INT64,
     NODE_UINT64,
 
-    // Pointer
-    NODE_PTR,
-
     // Reserved range for user-defined types
     NODE_USER_START = 1000
 } node_type;
@@ -142,19 +139,12 @@ void stack_free(stack_head* stack);
 typedef struct tree_node tree_node;
 typedef struct {
     size_t tree_size;
-    // defines the the partition for in-order traversal
-    // 0.0f: subtree is all R -> NR
-    // 1.0f: subtree is all L -> LN
-    // default is 0.5f
-    // -> expected behaviour for binary trees
-    // Note: User is expected to set value
-    float in_order_partition;
     tree_node* tree_root;
 } tree_head;
 
 struct tree_node {
     tree_node* parent;
-    linked_list_head* children;
+    dynarr_head children;
     node_type dtype;
     size_t data_size;
 #ifdef _WIN32
@@ -165,8 +155,6 @@ struct tree_node {
 };
 
 void tree_init(tree_head* const ptr_head);
-void tree_define_inorder_partition(tree_head* const ptr_head,
-                                   float inorder_partition);
 void tree_node_root(tree_head* const ptr_head,
                     node_type dtype,
                     size_t data_size,
@@ -189,6 +177,36 @@ void tree_graft(tree_head* const ptr_head,
 void tree_prune(tree_head* const ptr_head, tree_node* ptr_node);
 void tree_node_delete(tree_head* const ptr_head, tree_node* ptr_node);
 void tree_free(tree_head* const ptr_head);
+
+// TREE Traversals
+// Approach: a subtree node ptr is passed with a initialized stack
+// The stack is filled with the pointers to the tree nodes in the
+// desired order.
+// If the tree node ptr is NULL then the tree root will be taken as
+// the subtree node
+
+void tree_traversal_level_order(stack_head* stack,
+                                tree_head* const ptr_head,
+                                tree_node* ptr_node);
+
+void tree_traversal_pre_order(stack_head* stack,
+                              tree_head* const ptr_head,
+                              tree_node* ptr_node);
+void tree_traversal_post_order(stack_head* stack,
+                               tree_head* const ptr_head,
+                               tree_node* ptr_node);
+
+// in_order_partition defines the the partition for in-order traversal
+// 0.0f: subtree is all R -> NR
+// 1.0f: subtree is all L -> LN
+// default is 0.5f
+// -> expected behaviour for binary trees
+// Note: User is expected to set value
+void tree_traversal_in_order(float in_order_partition,
+                             stack_head* stack,
+                             tree_head* const ptr_head,
+                             tree_node* ptr_node);
+
 // internals
 tree_node* tree_prepare_node(node_type dtype,
                              size_t data_size,
