@@ -426,7 +426,7 @@ void tree_detach_subtree(tree_op_res* op_res,
         op_res->node_ptr = NULL;
         return;
     } else if(ptr_node->parent == NULL) {
-        tree_detatch_root(op_res, ptr_head);
+        tree_detach_root(op_res, ptr_head);
         return;
     }
     tree_node* ptr_parent = ptr_node->parent;
@@ -452,7 +452,7 @@ void tree_detach_subtree(tree_op_res* op_res,
     op_res->code = OK;
     op_res->node_ptr = ptr_node;
 }
-void tree_detatch_root(tree_op_res* op_res, tree_head* const ptr_head) {
+void tree_detach_root(tree_op_res* op_res, tree_head* const ptr_head) {
     op_res->node_ptr = ptr_head->tree_root;
     ptr_head->tree_root = NULL;
     ptr_head->tree_size = 0;

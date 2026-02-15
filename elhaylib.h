@@ -186,7 +186,7 @@ void tree_node_delete(tree_op_res* op_res,
 void tree_detach_subtree(tree_op_res* op_res,
                          tree_head* const ptr_head,
                          tree_node* ptr_node);
-void tree_detatch_root(tree_op_res* op_res, tree_head* const ptr_head);
+void tree_detach_root(tree_op_res* op_res, tree_head* const ptr_head);
 void tree_graft_subtree(tree_op_res* op_res,
                         tree_head* const ptr_head,
                         tree_node* ptr_new_parent,
