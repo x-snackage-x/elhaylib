@@ -82,7 +82,7 @@ void dynarr_remove_n(dynarr_head* const ptr_head,
     assert(index < ptr_head->dynarr_size &&
            "Index must be within current Dyn-Array bounds.");
     assert(
-        index + n_elements < ptr_head->dynarr_size &&
+        index + n_elements - 1 < ptr_head->dynarr_size &&
         "All elements to be removed must be within current Dyn-Array bounds.");
 
     void* start_point = ptr_head->ptr_first_elem + index * ptr_head->elem_size;
@@ -421,17 +421,22 @@ void tree_node_add_at_index(tree_op_res* op_res,
 void tree_detach_subtree(tree_op_res* op_res,
                          tree_head* const ptr_head,
                          tree_node* ptr_node) {
-    tree_node* ptr_parent = ptr_node->parent;
-    if(ptr_parent == NULL) {
-        op_res->code = SUBTREE_UNATACHED;
+    if(ptr_node->parent == NULL && ptr_head->tree_root != ptr_node) {
+        op_res->code = SUBTREE_UNATTACHED;
         op_res->node_ptr = NULL;
         return;
+    } else if(ptr_node->parent == NULL) {
+        tree_detatch_root(op_res, ptr_head);
+        return;
     }
+    tree_node* ptr_parent = ptr_node->parent;
 
     // find index of node in parent children array
     size_t node_index = 0;
-    tree_node* test_node_ptr = (tree_node*)ptr_parent->children.ptr_first_elem;
-    while(test_node_ptr != ptr_node) {
+    tree_node** test_node_ptr =
+        (tree_node**)ptr_parent->children.ptr_first_elem;
+
+    while(*test_node_ptr != ptr_node) {
         assert(node_index < ptr_parent->children.dynarr_size &&
                "Tree Corruption: Node not found in parent children array.");
         ++node_index;
@@ -445,7 +450,13 @@ void tree_detach_subtree(tree_op_res* op_res,
     ptr_head->tree_size -= subtree_size;
 
     op_res->code = OK;
-    op_res->node_ptr = NULL;
+    op_res->node_ptr = ptr_node;
+}
+void tree_detatch_root(tree_op_res* op_res, tree_head* const ptr_head) {
+    op_res->node_ptr = ptr_head->tree_root;
+    ptr_head->tree_root = NULL;
+    ptr_head->tree_size = 0;
+    op_res->code = OK;
 }
 
 void tree_graft_subtree(tree_op_res* op_res,
@@ -453,15 +464,37 @@ void tree_graft_subtree(tree_op_res* op_res,
                         tree_node* ptr_new_parent,
                         tree_node* ptr_node,
                         size_t graft_index) {
+    if(ptr_node->parent != NULL) {
+        dynarr_head children_array = ptr_node->parent->children;
+        tree_node** test_node_ptr = (tree_node**)children_array.ptr_first_elem;
+        for(size_t i = 0; i < children_array.dynarr_size; ++i) {
+            if(*test_node_ptr == ptr_node) {
+                op_res->code = SUBTREE_ATTACHED;
+                op_res->node_ptr = NULL;
+                return;
+            }
+        }
+    }
+
     size_t subtree_size = tree_count_nodes(ptr_node);
 
-    dynarr_head* child_nodes_head = &ptr_new_parent->children;
-    dynarr_insert(child_nodes_head, ptr_node, graft_index);
-    ptr_node->parent = ptr_new_parent;
+    if(ptr_new_parent == NULL) {
+        ptr_head->tree_root = ptr_node;
+    } else {
+        dynarr_head* child_nodes_head = &ptr_new_parent->children;
+        dynarr_insert(child_nodes_head, &ptr_node, graft_index);
+        ptr_node->parent = ptr_new_parent;
+    }
     ptr_head->tree_size += subtree_size;
 
     op_res->code = OK;
     op_res->node_ptr = ptr_node;
+}
+
+void tree_graft_root(tree_op_res* op_res,
+                     tree_head* const ptr_head,
+                     tree_node* ptr_node) {
+    tree_graft_subtree(op_res, ptr_head, NULL, ptr_node, 0);
 }
 
 tree_node* tree_get_ith_node_ptr(tree_node* ptr_node, size_t i) {

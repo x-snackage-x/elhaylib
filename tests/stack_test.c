@@ -140,7 +140,7 @@ bool test_struct_stack(bool no_yapping) {
     my_other_test_structure d_struct = {.gender = 'F', .name = "Nadezhda"};
 
     if(!no_yapping) {
-        printf("1. Testing stack with structs:\n");
+        printf("4a. Testing stack with structs:\n");
         printf("      Prints data as received from stack\n");
     }
 
@@ -228,7 +228,7 @@ bool test_struct_stack(bool no_yapping) {
     sub_tests[1] &= !pop_response;
 
     if(!no_yapping) {
-        printf("2. Testing stack is empty:\n");
+        printf("4b. Testing stack is empty:\n");
         printf("Stack is empty? %s\n", !pop_response ? "true" : "false");
         printf("%*s", TEST_NAMES_LENGTH, "Result: ");
         print_test_res(sub_tests[1]);

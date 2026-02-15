@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-typedef enum { OK, SUBTREE_UNATACHED } ERROR_CODES;
+typedef enum { OK, SUBTREE_UNATTACHED, SUBTREE_ATTACHED } ERROR_CODES;
 
 // DYNAMIC ARRAY
 typedef struct {
@@ -186,11 +186,15 @@ void tree_node_delete(tree_op_res* op_res,
 void tree_detach_subtree(tree_op_res* op_res,
                          tree_head* const ptr_head,
                          tree_node* ptr_node);
+void tree_detatch_root(tree_op_res* op_res, tree_head* const ptr_head);
 void tree_graft_subtree(tree_op_res* op_res,
                         tree_head* const ptr_head,
                         tree_node* ptr_new_parent,
                         tree_node* ptr_node,
                         size_t graft_index);
+void tree_graft_root(tree_op_res* op_res,
+                     tree_head* const ptr_head,
+                     tree_node* ptr_node);
 void tree_detach_graft_subtree(tree_op_res* op_res,
                                tree_head* const ptr_src_tree,
                                tree_head* const ptr_dest_tree,

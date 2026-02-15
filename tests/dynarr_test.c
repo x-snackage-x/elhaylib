@@ -31,8 +31,8 @@ void print_test_res(bool result) {
 
 bool test_primitive_types(bool no_yapping) {
     bool test_result = true;
-    int n_sub = 6;
-    bool sub_tests[] = {true, true, true, true, true, true};
+    int n_sub = 7;
+    bool sub_tests[] = {true, true, true, true, true, true, true};
 
     if(!no_yapping)
         printf("1. Testing dynamic array with scaler types:\n");
@@ -146,6 +146,23 @@ bool test_primitive_types(bool no_yapping) {
     if(!no_yapping) {
         printf("%*s", TEST_NAMES_LENGTH, "Result: ");
         print_test_res(sub_tests[5]);
+        printf("Testing End element remove:\n");
+        printf("Before Size: %zu\n", my_arr.dynarr_size);
+        printf("Before Cap.: %zu\n", my_arr.dynarr_capacity);
+    }
+    dynarr_remove(&my_arr, 2);
+    if(!no_yapping) {
+        printf("After Size: %zu\n", my_arr.dynarr_size);
+        printf("After Cap.: %zu\n", my_arr.dynarr_capacity);
+    }
+    for(long unsigned int i = 0; i < my_arr.dynarr_size; ++i) {
+        sub_tests[6] &= (my_floats_shrunk[i] == *(ptr_head_float + i));
+        if(!no_yapping)
+            printf("%ld-th Element = %f\n", i, *(ptr_head_float + i));
+    }
+    if(!no_yapping) {
+        printf("%*s", TEST_NAMES_LENGTH, "Result: ");
+        print_test_res(sub_tests[6]);
     }
 
     dynarr_free(&my_arr);
