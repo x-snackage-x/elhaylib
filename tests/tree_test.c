@@ -6,6 +6,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #define RED "\x1B[31m"
 #define GRN "\x1B[32m"
 #define RESET "\x1B[0m"
@@ -121,7 +125,7 @@ bool build_my_tree(bool no_yapping) {
                three_node->children.dynarr_size, (int)*three_node->data);
     }
 
-    // naive return - non exauhstive
+    // naive return - non exhaustive
     return root_node == one_node->parent;
 }
 
@@ -163,7 +167,7 @@ bool test_insert_nodes(bool no_yapping) {
 
     tree_node* nine_node = result.node_ptr;
 
-    // naive return - non exauhstive
+    // naive return - non exhaustive
     return (int)*nine_node->data == 9;
 }
 
@@ -220,23 +224,23 @@ bool test_count_nodes(bool no_yapping) {
     return test_result;
 }
 
-bool test_detatch_subtree(bool no_yapping) {
+bool test_detach_subtree(bool no_yapping) {
     bool test_result = true;
 
     bool sub_tests[] = {true, true, true};
     const int n_sub = 3;
 
     tree_init(&my_other_tree);
-    tree_node* detatched_subtree = tree_get_ith_node_ptr(my_tree.tree_root, 0);
+    tree_node* detached_subtree = tree_get_ith_node_ptr(my_tree.tree_root, 0);
 
-    tree_detach_subtree(&result, &my_tree, detatched_subtree);
+    tree_detach_subtree(&result, &my_tree, detached_subtree);
     tree_graft_root(&result, &my_other_tree, result.node_ptr);
 
     sub_tests[0] = my_tree.tree_size == 7;
     sub_tests[1] = my_other_tree.tree_size == 3;
 
     if(!no_yapping) {
-        printf("4a. Testing subtree detatch:\n");
+        printf("4a. Testing subtree detach:\n");
         printf("Tree counts:\n");
         printf("      Expecting: 7 - 3\n");
         printf("             Is: %zu - %zu\n", my_tree.tree_size,
@@ -254,8 +258,8 @@ bool test_detatch_subtree(bool no_yapping) {
     sub_tests[2] = result.code == SUBTREE_UNATTACHED;
 
     if(!no_yapping) {
-        printf("4b. Testing subtree detatch protection:\n");
-        printf("Try to detatch a subtree that has no parent.\n");
+        printf("4b. Testing subtree detach protection:\n");
+        printf("Try to detach a subtree that has no parent.\n");
         printf("   Expecting %d Code.\n", SUBTREE_UNATTACHED);
         printf("          Is %d Code.\n", result.code);
         printf("%*s", TEST_NAMES_LENGTH, "Result: ");
@@ -312,30 +316,35 @@ bool test_graft_subtree(bool no_yapping) {
 }
 
 int main() {
+#ifdef _WIN32
+    SetConsoleOutputCP(CP_UTF8);
+#endif
+
     bool flags[10] = {true};
     memset(flags, true, 10);
 
+    bool no_yapping = NO_YAPPING;
     bool print_trees = PRINT_TREES;
 
-    bool test_result1 = build_my_tree(NO_YAPPING);
-    if(!NO_YAPPING || print_trees) {
+    bool test_result1 = build_my_tree(no_yapping);
+    if(!no_yapping || print_trees) {
         printf("\nState ONE: Initial Tree:\n");
         printTree(my_tree.tree_root, 0, false, flags);
         memset(flags, true, 10);
     }
 
-    bool test_result2 = test_insert_nodes(NO_YAPPING);
-    if(!NO_YAPPING || print_trees) {
+    bool test_result2 = test_insert_nodes(no_yapping);
+    if(!no_yapping || print_trees) {
         printf("\nState TWO: Insert one nodes and two leaf:\n");
         printTree(my_tree.tree_root, 0, false, flags);
         memset(flags, true, 10);
     }
 
-    bool test_result3 = test_count_nodes(NO_YAPPING);
+    bool test_result3 = test_count_nodes(no_yapping);
 
-    bool test_result4 = test_detatch_subtree(NO_YAPPING);
-    if(!NO_YAPPING || print_trees) {
-        printf("\nState TWO: Detatch subtree:\n");
+    bool test_result4 = test_detach_subtree(no_yapping);
+    if(!no_yapping || print_trees) {
+        printf("\nState TWO: detach subtree:\n");
         printf("Tree One:\n");
         printTree(my_tree.tree_root, 0, false, flags);
         memset(flags, true, 10);
@@ -344,8 +353,8 @@ int main() {
         memset(flags, true, 10);
     }
 
-    bool test_result5 = test_graft_subtree(NO_YAPPING);
-    if(!NO_YAPPING || print_trees) {
+    bool test_result5 = test_graft_subtree(no_yapping);
+    if(!no_yapping || print_trees) {
         printf("\nState THREE: Reconstituted tree:\n");
         printf("Tree One:\n");
         printTree(my_tree.tree_root, 0, false, flags);
