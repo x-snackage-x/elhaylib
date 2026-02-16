@@ -2,6 +2,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#if _WIN32
+#pragma warning(disable : 4200)
+#endif
+
 typedef enum { OK, SUBTREE_UNATTACHED, SUBTREE_ATTACHED } ERROR_CODES;
 
 // DYNAMIC ARRAY
@@ -71,11 +75,7 @@ struct list_node {
     list_node* previous_node;
     node_type dtype;
     size_t data_size;
-#ifdef _WIN32
-    char data[1];
-#else
     char data[];
-#endif
 };
 
 typedef struct {
@@ -147,11 +147,7 @@ struct tree_node {
     dynarr_head children;
     node_type dtype;
     size_t data_size;
-#ifdef _WIN32
-    char data[1];
-#else
     char data[];
-#endif
 };
 
 typedef struct {
@@ -243,3 +239,6 @@ void tree_traversal_in_order(float in_order_partition,
 tree_node* tree_prepare_node(node_type dtype,
                              size_t data_size,
                              void const* data);
+void tree_free_node(tree_op_res* op_res,
+                    tree_head* const ptr_head,
+                    tree_node* const ptr_node);

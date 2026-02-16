@@ -497,6 +497,20 @@ void tree_graft_root(tree_op_res* op_res,
     tree_graft_subtree(op_res, ptr_head, NULL, ptr_node, 0);
 }
 
+void tree_detach_graft_subtree(tree_op_res* op_res,
+                               tree_head* const ptr_src_tree,
+                               tree_head* const ptr_dest_tree,
+                               tree_node* ptr_new_parent,
+                               tree_node* ptr_node,
+                               size_t graft_index) {
+    tree_detach_subtree(op_res, ptr_src_tree, ptr_node);
+    if(op_res->code != OK) {
+        return;
+    }
+    tree_graft_subtree(op_res, ptr_dest_tree, ptr_new_parent, ptr_node,
+                       graft_index);
+}
+
 tree_node* tree_get_ith_node_ptr(tree_node* ptr_node, size_t i) {
     tree_node** pointer_to_children_pointers =
         (tree_node**)ptr_node->children.ptr_first_elem;

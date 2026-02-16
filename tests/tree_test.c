@@ -50,7 +50,7 @@ bool build_my_tree(bool no_yapping) {
     }
 
     if(!no_yapping) {
-        printf("Node 0: self: %p - parent: %p - n-children: %ld - data: %d\n",
+        printf("Node 0: self: %p - parent: %p - n-children: %zu - data: %d\n",
                (void*)root_node, (void*)root_node->parent,
                root_node->children.dynarr_size, (int)*root_node->data);
     }
@@ -60,7 +60,7 @@ bool build_my_tree(bool no_yapping) {
     tree_node* one_node = result.node_ptr;
 
     if(!no_yapping) {
-        printf("Node 0: self: %p - parent: %p - n-children: %ld - data: %d\n",
+        printf("Node 0: self: %p - parent: %p - n-children: %zu - data: %d\n",
                (void*)root_node, (void*)root_node->parent,
                root_node->children.dynarr_size, (int)*root_node->data);
     }
@@ -70,7 +70,7 @@ bool build_my_tree(bool no_yapping) {
     tree_node* three_node = result.node_ptr;
 
     if(!no_yapping) {
-        printf("Node 0: self: %p - parent: %p - n-children: %ld - data: %d\n",
+        printf("Node 0: self: %p - parent: %p - n-children: %zu - data: %d\n",
                (void*)root_node, (void*)root_node->parent,
                root_node->children.dynarr_size, (int)*root_node->data);
     }
@@ -79,7 +79,7 @@ bool build_my_tree(bool no_yapping) {
                   &my_data[4]);
 
     if(!no_yapping) {
-        printf("Node 1: self: %p - parent: %p - n-children: %ld - data: %d\n",
+        printf("Node 1: self: %p - parent: %p - n-children: %zu - data: %d\n",
                (void*)one_node, (void*)one_node->parent,
                one_node->children.dynarr_size, (int)*one_node->data);
     }
@@ -88,17 +88,17 @@ bool build_my_tree(bool no_yapping) {
                   &my_data[5]);
 
     if(!no_yapping) {
-        printf("Node 1: self: %p - parent: %p - n-children: %ld - data: %d\n",
+        printf("Node 1: self: %p - parent: %p - n-children: %zu - data: %d\n",
                (void*)one_node, (void*)one_node->parent,
                one_node->children.dynarr_size, (int)*one_node->data);
 
         tree_node* four_node = tree_get_ith_node_ptr(one_node, 0);
-        printf("Node 4: self: %p - parent: %p - n-children: %ld - data: %d\n",
+        printf("Node 4: self: %p - parent: %p - n-children: %zu - data: %d\n",
                (void*)four_node, (void*)four_node->parent,
                four_node->children.dynarr_size, (int)*four_node->data);
 
         tree_node* five_node = tree_get_ith_node_ptr(one_node, 1);
-        printf("Node 5: self: %p - parent: %p - n-children: %ld - data: %d\n",
+        printf("Node 5: self: %p - parent: %p - n-children: %zu - data: %d\n",
                (void*)five_node, (void*)five_node->parent,
                five_node->children.dynarr_size, (int)*five_node->data);
     }
@@ -107,7 +107,7 @@ bool build_my_tree(bool no_yapping) {
                   &my_data[6]);
 
     if(!no_yapping) {
-        printf("Node 3: self: %p - parent: %p - n-children: %ld - data: %d\n",
+        printf("Node 3: self: %p - parent: %p - n-children: %zu - data: %d\n",
                (void*)three_node, (void*)three_node->parent,
                three_node->children.dynarr_size, (int)*three_node->data);
     }
@@ -116,7 +116,7 @@ bool build_my_tree(bool no_yapping) {
                   &my_data[8]);
 
     if(!no_yapping) {
-        printf("Node 3: self: %p - parent: %p - n-children: %ld - data: %d\n",
+        printf("Node 3: self: %p - parent: %p - n-children: %zu - data: %d\n",
                (void*)three_node, (void*)three_node->parent,
                three_node->children.dynarr_size, (int)*three_node->data);
     }
@@ -191,7 +191,7 @@ bool test_count_nodes(bool no_yapping) {
     sub_tests[2] &= cnt_right == 5;
 
     if(!no_yapping) {
-        printf("             is: %ld - %ld - %ld\n", cnt_left, cnt_mid,
+        printf("             is: %zu - %zu - %zu\n", cnt_left, cnt_mid,
                cnt_right);
         printf("%*s", TEST_NAMES_LENGTH, "Result: ");
         print_test_res(sub_tests[0] && sub_tests[1] && sub_tests[2]);
@@ -209,7 +209,7 @@ bool test_count_nodes(bool no_yapping) {
     sub_tests[3] &= 10 == cnt_counted;
 
     if(!no_yapping) {
-        printf("           Size: %ld - Count: %ld\n", head_cnt, cnt_counted);
+        printf("           Size: %zu - Count: %zu\n", head_cnt, cnt_counted);
         printf("%*s", TEST_NAMES_LENGTH, "Result: ");
         print_test_res(sub_tests[3]);
     }
@@ -239,7 +239,7 @@ bool test_detatch_subtree(bool no_yapping) {
         printf("4a. Testing subtree detatch:\n");
         printf("Tree counts:\n");
         printf("      Expecting: 7 - 3\n");
-        printf("             Is: %ld - %ld\n", my_tree.tree_size,
+        printf("             Is: %zu - %zu\n", my_tree.tree_size,
                my_other_tree.tree_size);
         printf("%*s", TEST_NAMES_LENGTH, "Result 1: ");
         print_test_res(sub_tests[0]);
@@ -274,7 +274,7 @@ bool test_graft_subtree(bool no_yapping) {
     bool sub_tests[] = {true, true, true};
     const int n_sub = 3;
 
-    tree_detatch_root(&result, &my_other_tree);
+    tree_detach_root(&result, &my_other_tree);
     tree_graft_subtree(&result, &my_tree, my_tree.tree_root, result.node_ptr,
                        0);
     sub_tests[0] = my_tree.tree_size == 10;
@@ -284,7 +284,7 @@ bool test_graft_subtree(bool no_yapping) {
         printf("5a. Testing subtree graft:\n");
         printf("Tree counts:\n");
         printf("      Expecting: 10 - 0\n");
-        printf("             Is: %ld - %ld\n", my_tree.tree_size,
+        printf("             Is: %zu - %zu\n", my_tree.tree_size,
                my_other_tree.tree_size);
         printf("%*s", TEST_NAMES_LENGTH, "Result 1: ");
         print_test_res(sub_tests[0]);
@@ -315,15 +315,17 @@ int main() {
     bool flags[10] = {true};
     memset(flags, true, 10);
 
+    bool print_trees = PRINT_TREES;
+
     bool test_result1 = build_my_tree(NO_YAPPING);
-    if(!NO_YAPPING || PRINT_TREES) {
+    if(!NO_YAPPING || print_trees) {
         printf("\nState ONE: Initial Tree:\n");
         printTree(my_tree.tree_root, 0, false, flags);
         memset(flags, true, 10);
     }
 
     bool test_result2 = test_insert_nodes(NO_YAPPING);
-    if(!NO_YAPPING || PRINT_TREES) {
+    if(!NO_YAPPING || print_trees) {
         printf("\nState TWO: Insert one nodes and two leaf:\n");
         printTree(my_tree.tree_root, 0, false, flags);
         memset(flags, true, 10);
@@ -332,7 +334,7 @@ int main() {
     bool test_result3 = test_count_nodes(NO_YAPPING);
 
     bool test_result4 = test_detatch_subtree(NO_YAPPING);
-    if(!NO_YAPPING || PRINT_TREES) {
+    if(!NO_YAPPING || print_trees) {
         printf("\nState TWO: Detatch subtree:\n");
         printf("Tree One:\n");
         printTree(my_tree.tree_root, 0, false, flags);
@@ -343,7 +345,7 @@ int main() {
     }
 
     bool test_result5 = test_graft_subtree(NO_YAPPING);
-    if(!NO_YAPPING || PRINT_TREES) {
+    if(!NO_YAPPING || print_trees) {
         printf("\nState THREE: Reconstituted tree:\n");
         printf("Tree One:\n");
         printTree(my_tree.tree_root, 0, false, flags);
@@ -360,7 +362,7 @@ int main() {
     print_test_res(test_result2);
     printf("%*s", TEST_NAMES_LENGTH, "Tree count Test: ");
     print_test_res(test_result3);
-    printf("%*s", TEST_NAMES_LENGTH, "Subtree detatch Test: ");
+    printf("%*s", TEST_NAMES_LENGTH, "Subtree detach Test: ");
     print_test_res(test_result4);
     printf("%*s", TEST_NAMES_LENGTH, "Subtree graft Test: ");
     print_test_res(test_result5);
