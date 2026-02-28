@@ -468,7 +468,7 @@ void tree_graft_subtree(tree_op_res* op_res,
         dynarr_head children_array = ptr_node->parent->children;
         tree_node** test_node_ptr = (tree_node**)children_array.ptr_first_elem;
         for(size_t i = 0; i < children_array.dynarr_size; ++i) {
-            if(*test_node_ptr == ptr_node) {
+            if(*test_node_ptr++ == ptr_node) {
                 op_res->code = SUBTREE_ATTACHED;
                 op_res->node_ptr = NULL;
                 return;

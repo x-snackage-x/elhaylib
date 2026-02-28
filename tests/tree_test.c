@@ -296,8 +296,8 @@ bool test_graft_subtree(bool no_yapping) {
         print_test_res(sub_tests[1]);
     }
 
-    tree_graft_subtree(&result, &my_tree, my_tree.tree_root, result.node_ptr,
-                       0);
+    tree_node* second_child = tree_get_ith_node_ptr(my_tree.tree_root, 1);
+    tree_graft_subtree(&result, &my_tree, my_tree.tree_root, second_child, 0);
     sub_tests[2] = result.code == SUBTREE_ATTACHED;
 
     if(!no_yapping) {
