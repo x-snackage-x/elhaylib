@@ -254,6 +254,8 @@ bool test_detach_subtree(bool no_yapping) {
     int16_t test = 10;
     tree_node* floating_node =
         tree_prepare_node(NODE_INT16, sizeof(int16_t), &test);
+    tree_node_delete(&result, &my_tree, floating_node);
+    sub_tests[2] = result.code == SUBTREE_UNATTACHED;
     tree_detach_subtree(&result, &my_tree, floating_node);
     sub_tests[2] = result.code == SUBTREE_UNATTACHED;
 
@@ -315,6 +317,52 @@ bool test_graft_subtree(bool no_yapping) {
     return test_result;
 }
 
+/* Transform tree by deleting node 1:
+/            0                     0
+/          / | \                 //| \
+/         /  |  \               // |  \
+/        1   2   3      --->   4 5 2   3
+/       / \    / | \                 / | \
+/      4   5  6  7  8               6  7  8
+/                |                     |
+/                9                     9
+*/
+bool test_node_delete(bool no_yapping) {
+    bool test_result = true;
+
+    bool sub_tests[] = {true, true, true};
+    const int n_sub = 3;
+
+    tree_node_delete(&result, &my_tree, my_tree.tree_root);
+    sub_tests[0] = result.code == NODE_IS_ROOT;
+
+    if(!no_yapping) {
+        printf("6a. Testing delete Root Node:\n");
+        printf("   Expecting %d Code.\n", NODE_IS_ROOT);
+        printf("          Is %d Code.\n", result.code);
+        printf("%*s", TEST_NAMES_LENGTH, "Result: ");
+        print_test_res(sub_tests[0]);
+    }
+
+    tree_node* first_child = tree_get_ith_node_ptr(my_tree.tree_root, 0);
+    tree_node_delete(&result, &my_tree, first_child);
+    sub_tests[1] = my_tree.tree_size == 9;
+
+    if(!no_yapping) {
+        printf("6b. Testing node delete:\n");
+        printf("Tree counts:\n");
+        printf("      Expecting: 9\n");
+        printf("             Is: %zu\n", my_tree.tree_size);
+        printf("%*s", TEST_NAMES_LENGTH, "Result: ");
+        print_test_res(sub_tests[1]);
+    }
+
+    for(int i = 0; i < n_sub; ++i) {
+        test_result &= sub_tests[i];
+    }
+    return test_result;
+}
+
 int main() {
 #ifdef _WIN32
     SetConsoleOutputCP(CP_UTF8);
@@ -364,6 +412,14 @@ int main() {
         memset(flags, true, 10);
     }
 
+    bool test_result6 = test_node_delete(no_yapping);
+    if(!no_yapping || print_trees) {
+        printf("\nState FOUR: Reconstituted tree:\n");
+        printf("Tree:\n");
+        printTree(my_tree.tree_root, 0, false, flags);
+        memset(flags, true, 10);
+    }
+
     printf("Tree Test Suite Summary:\n");
     printf("%*s", TEST_NAMES_LENGTH, "Tree build/add Test: ");
     print_test_res(test_result1);
@@ -375,6 +431,8 @@ int main() {
     print_test_res(test_result4);
     printf("%*s", TEST_NAMES_LENGTH, "Subtree graft Test: ");
     print_test_res(test_result5);
+    printf("%*s", TEST_NAMES_LENGTH, "Node delete Test: ");
+    print_test_res(test_result6);
 }
 
 // adapted from: https://www.geeksforgeeks.org/dsa/print-n-ary-tree-graphically/

@@ -8,7 +8,12 @@
 #pragma warning(disable : 4200)
 #endif
 
-typedef enum { OK, SUBTREE_UNATTACHED, SUBTREE_ATTACHED } ERROR_CODES;
+typedef enum {
+    OK,
+    SUBTREE_UNATTACHED,
+    SUBTREE_ATTACHED,
+    NODE_IS_ROOT
+} ERROR_CODES;
 
 // DYNAMIC ARRAY
 typedef struct {
@@ -30,6 +35,10 @@ void dynarr_remove(dynarr_head* const ptr_head, size_t index);
 void dynarr_remove_n(dynarr_head* const ptr_head,
                      size_t index,
                      size_t n_elements);
+
+char* dynarr_concat(dynarr_head* const ptr_array_dest,
+                    dynarr_head* const ptr_array_src);
+
 // internals
 void dynarr_expand(dynarr_head* const ptr_head);
 
@@ -241,6 +250,4 @@ void tree_traversal_in_order(float in_order_partition,
 tree_node* tree_prepare_node(node_type dtype,
                              size_t data_size,
                              void const* data);
-void tree_free_node(tree_op_res* op_res,
-                    tree_head* const ptr_head,
-                    tree_node* const ptr_node);
+void tree_free_node(tree_node* const ptr_node);

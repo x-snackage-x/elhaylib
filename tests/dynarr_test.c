@@ -31,8 +31,8 @@ void print_test_res(bool result) {
 
 bool test_primitive_types(bool no_yapping) {
     bool test_result = true;
-    int n_sub = 7;
-    bool sub_tests[] = {true, true, true, true, true, true, true};
+    int n_sub = 8;
+    bool sub_tests[] = {true, true, true, true, true, true, true, true};
 
     if(!no_yapping)
         printf("1. Testing dynamic array with scaler types:\n");
@@ -165,7 +165,53 @@ bool test_primitive_types(bool no_yapping) {
         print_test_res(sub_tests[6]);
     }
 
+    int my_ints[] = {2, 69, 420};
+    int other_ints[] = {1337, 80085};
+    dynarr_head ints1 = {.elem_size = sizeof my_ints[0], .dynarr_capacity = 3};
+    dynarr_head ints2 = {.elem_size = sizeof other_ints[0],
+                         .dynarr_capacity = 2};
+    dynarr_init(&ints1);
+    dynarr_init(&ints2);
+    dynarr_append(&ints1, &my_ints[0]);
+    dynarr_append(&ints1, &my_ints[1]);
+    dynarr_append(&ints1, &my_ints[2]);
+    dynarr_append(&ints2, &other_ints[0]);
+    dynarr_append(&ints2, &other_ints[1]);
+
+    if(!no_yapping) {
+        printf("Testing concatenation:\n");
+        printf("Array 1 Size: %zu\nElements: [", ints1.dynarr_size);
+        for(size_t i = 0; i < ints1.dynarr_size; ++i) {
+            printf("%d, ", ((int*)ints1.ptr_first_elem)[i]);
+        }
+        printf("\033[2D]\nArray 2 Size: %zu\nElements:[", ints2.dynarr_size);
+        for(size_t i = 0; i < ints2.dynarr_size; ++i) {
+            printf("%d, ", ((int*)ints2.ptr_first_elem)[i]);
+        }
+        printf("\033[2D]\n");
+    }
+
+    dynarr_concat(&ints1, &ints2);
+    int* concated_array = (int*)ints1.ptr_first_elem;
+    sub_tests[7] &= (my_ints[0] == concated_array[0]);
+    sub_tests[7] &= (my_ints[1] == concated_array[1]);
+    sub_tests[7] &= (my_ints[2] == concated_array[2]);
+    sub_tests[7] &= (other_ints[0] == concated_array[3]);
+    sub_tests[7] &= (other_ints[1] == concated_array[4]);
+
+    if(!no_yapping) {
+        printf("Concatenated Array 1 Size: %zu\nElements: [",
+               ints1.dynarr_size);
+        for(size_t i = 0; i < ints1.dynarr_size; ++i) {
+            printf("%d, ", ((int*)ints1.ptr_first_elem)[i]);
+        }
+        printf("\033[2D]\n");
+        printf("%*s", TEST_NAMES_LENGTH, "Result: ");
+        print_test_res(sub_tests[7]);
+    }
+
     dynarr_free(&my_arr);
+    dynarr_free(&ints1);
 
     for(int i = 0; i < n_sub; ++i) {
         test_result &= sub_tests[i];
